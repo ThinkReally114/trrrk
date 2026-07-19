@@ -230,6 +230,7 @@ body {
   max-width: 960px;
   margin: 0 auto;
   padding: 0 32px 48px;
+  perspective: 1400px;
 }
 
 .repo-badges {
@@ -306,13 +307,25 @@ body {
 /* View tabs */
 .view-tabs {
   display: flex;
-  gap: 4px;
+  gap: 0;
   margin: 0 auto 20px;
   padding: 4px;
   background: var(--md-sys-color-surface-container);
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: 0;
   width: fit-content;
+  position: relative;
+}
+
+.tab-indicator {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  height: calc(100% - 8px);
+  background: var(--md-sys-color-primary-container);
+  z-index: 0;
+  pointer-events: none;
+  opacity: 1;
 }
 
 .view-tab {
@@ -328,14 +341,18 @@ body {
   font-weight: 500;
   font-family: var(--font-display);
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: color 0.25s ease;
   white-space: nowrap;
+  transform-origin: center center;
+  position: relative;
+  z-index: 1;
 }
 
-.view-tab:hover { color: #d0d0e8; }
+.view-tab:hover {
+  color: #d0d0e8;
+}
 
 .view-tab.active {
-  background: var(--md-sys-color-primary-container);
   color: var(--md-sys-color-on-primary-container);
 }
 
@@ -366,8 +383,8 @@ body {
   border-radius: 0;
   border: 1px solid var(--md-sys-color-outline-variant);
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  transform-origin: center center;
 }
 
 .commit-list-card::before, .pr-list-card::before, .issue-list-card::before {
@@ -720,11 +737,15 @@ body {
 .commit-detail {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin 0.3s ease;
   opacity: 0;
   margin-left: 24px;
   margin-top: 0;
   width: calc(100% - 24px);
+  transform-origin: center center;
+}
+
+.commit-item, .pr-item, .issue-item {
+  perspective: 1400px;
 }
 
 .commit-item.expanded .commit-detail,
@@ -1312,6 +1333,7 @@ body {
   </div>
 
   <div class="view-tabs" id="viewTabs">
+    <div class="tab-indicator" id="tabIndicator"></div>
     <button class="view-tab active" data-view="commits" onclick="switchView('commits')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="12" r="2"/><path d="M6 8v8M8 6h6a4 4 0 0 1 4 4"/></svg>
       提交动态 <span class="tab-count" id="tabCommitCount">-</span>
@@ -1362,7 +1384,7 @@ body {
 </div>
 
 <div class="footer">
-  Data from GitHub API &middot; 点击右上角手动刷新
+  Powered by GLM 5.2
 </div>
 
 <div class="error-toast" id="errorToast"></div>
@@ -1388,6 +1410,7 @@ let commitStore = [];
 
 // Repo filter state: 'all' | 'a' | 'b'
 let repoFilter = 'all';
+let isSwitching = false;
 
 // PR / Issues state
 let currentView = 'commits';
@@ -1511,7 +1534,7 @@ function animateListEnter(listEl, newShas) {
       targets: oldItems,
       opacity: [0, 1],
       translateY: [12, 0],
-      duration: 480,
+      duration: 300,
       delay: anime.stagger(45, { start: 0 }),
       easing: 'easeOutCubic'
     });
@@ -1523,7 +1546,7 @@ function animateListEnter(listEl, newShas) {
       opacity: [0, 1],
       translateY: [20, 0],
       scale: [0.98, 1],
-      duration: 620,
+      duration: 320,
       delay: anime.stagger(60, { start: 120 }),
       easing: 'easeOutBack',
       complete: function(anim) {
@@ -1535,7 +1558,7 @@ function animateListEnter(listEl, newShas) {
               '0 0 0 3px rgba(255, 180, 214, 0.55)',
               '0 0 0 0 rgba(255, 180, 214, 0)'
             ],
-            duration: 2200,
+            duration: 1900,
             easing: 'easeOutSine'
           });
         });
@@ -1546,26 +1569,60 @@ function animateListEnter(listEl, newShas) {
 
 function animateExpand(detailEl) {
   if (typeof anime === 'undefined') return;
-  detailEl.style.maxHeight = '0px';
-  detailEl.style.opacity = '0';
+  detailEl.style.maxHeight = '3000px';
   anime({
     targets: detailEl,
-    maxHeight: ['0px', '3000px'],
     opacity: [0, 1],
-    duration: 420,
+    translateZ: [-600, 0],
+    rotateX: [-60, 0],
+    scale: [0.8, 1],
+    duration: 300,
     easing: 'easeOutCubic'
   });
 }
 
 function animateCollapse(detailEl, callback) {
-  if (typeof anime === 'undefined') { if (callback) callback(); return; }
+  if (typeof anime === 'undefined') {
+    detailEl.style.maxHeight = '0px';
+    if (callback) callback();
+    return;
+  }
   anime({
     targets: detailEl,
-    maxHeight: ['3000px', '0px'],
     opacity: [1, 0],
-    duration: 280,
+    translateZ: [0, -600],
+    rotateX: [0, -60],
+    scale: [1, 0.8],
+    duration: 300,
     easing: 'easeInCubic',
-    complete: function() { if (callback) callback(); }
+    complete: function() {
+      detailEl.style.maxHeight = '0px';
+      detailEl.style.transform = '';
+      detailEl.style.opacity = '';
+      if (callback) callback();
+    }
+  });
+}
+
+function animateItemExpand(itemEl) {
+  if (typeof anime === 'undefined') return;
+  anime({
+    targets: itemEl,
+    translateY: [{ value: -8, duration: 150 }, { value: 0, duration: 150 }],
+    scale: [{ value: 1.03, duration: 150 }, { value: 1, duration: 150 }],
+    duration: 300,
+    easing: 'easeOutCubic'
+  });
+}
+
+function animateItemCollapse(itemEl) {
+  if (typeof anime === 'undefined') return;
+  anime({
+    targets: itemEl,
+    translateY: [{ value: -4, duration: 150 }, { value: 0, duration: 150 }],
+    scale: [{ value: 0.98, duration: 150 }, { value: 1, duration: 150 }],
+    duration: 300,
+    easing: 'easeOutCubic'
   });
 }
 
@@ -1574,19 +1631,43 @@ function animateRefreshPulse(el) {
   anime({
     targets: el,
     scale: [1, 0.92, 1],
-    duration: 420,
+    duration: 300,
     easing: 'easeInOutQuad'
   });
 }
 
-function animateTabSwitch(tabEl) {
-  if (typeof anime === 'undefined') return;
+function moveTabIndicator(view) {
+  const indicator = document.getElementById('tabIndicator');
+  if (!indicator) return;
+  const targetTab = document.querySelector('.view-tab[data-view="' + view + '"]');
+  if (!targetTab) return;
+  const tabsRect = document.getElementById('viewTabs').getBoundingClientRect();
+  const tabRect = targetTab.getBoundingClientRect();
+  const left = tabRect.left - tabsRect.left;
+  const width = tabRect.width;
+  if (typeof anime === 'undefined') {
+    indicator.style.left = left + 'px';
+    indicator.style.width = width + 'px';
+    return;
+  }
   anime({
-    targets: tabEl,
-    scale: [0.96, 1],
-    duration: 320,
-    easing: 'easeOutBack'
+    targets: indicator,
+    left: left,
+    width: width,
+    duration: 300,
+    easing: 'easeOutCubic'
   });
+}
+
+function initTabIndicator() {
+  const indicator = document.getElementById('tabIndicator');
+  if (!indicator) return;
+  const activeTab = document.querySelector('.view-tab.active');
+  if (!activeTab) return;
+  const tabsRect = document.getElementById('viewTabs').getBoundingClientRect();
+  const tabRect = activeTab.getBoundingClientRect();
+  indicator.style.left = (tabRect.left - tabsRect.left) + 'px';
+  indicator.style.width = tabRect.width + 'px';
 }
 
 function escapeHtml(str) {
@@ -2252,14 +2333,17 @@ async function toggleCommit(item) {
   if (item.classList.contains('expanded')) {
     const detailEl = document.getElementById(`detail-${sha}`);
     animateCollapse(detailEl, () => item.classList.remove('expanded'));
+    animateItemCollapse(item);
     return;
   }
 
   document.querySelectorAll('.commit-item.expanded').forEach(el => {
     const d = el.querySelector('.commit-detail');
     animateCollapse(d, () => el.classList.remove('expanded'));
+    animateItemCollapse(el);
   });
   item.classList.add('expanded');
+  animateItemExpand(item);
 
   const detailEl = document.getElementById(`detail-${sha}`);
   detailEl.innerHTML = renderDetailLoading();
@@ -2286,14 +2370,17 @@ async function togglePR(item) {
   if (item.classList.contains('expanded')) {
     const detailEl = document.getElementById(`pr-detail-${number}`);
     animateCollapse(detailEl, () => item.classList.remove('expanded'));
+    animateItemCollapse(item);
     return;
   }
 
   document.querySelectorAll('.pr-item.expanded').forEach(el => {
     const d = el.querySelector('.commit-detail');
     animateCollapse(d, () => el.classList.remove('expanded'));
+    animateItemCollapse(el);
   });
   item.classList.add('expanded');
+  animateItemExpand(item);
 
   const detailEl = document.getElementById(`pr-detail-${number}`);
   const repoConfig = REPOS.find(r => r.owner === owner && r.repo === repo);
@@ -2324,14 +2411,17 @@ async function toggleIssue(item) {
   if (item.classList.contains('expanded')) {
     const detailEl = document.getElementById(`issue-detail-${number}`);
     animateCollapse(detailEl, () => item.classList.remove('expanded'));
+    animateItemCollapse(item);
     return;
   }
 
   document.querySelectorAll('.issue-item.expanded').forEach(el => {
     const d = el.querySelector('.commit-detail');
     animateCollapse(d, () => el.classList.remove('expanded'));
+    animateItemCollapse(el);
   });
   item.classList.add('expanded');
+  animateItemExpand(item);
 
   const detailEl = document.getElementById(`issue-detail-${number}`);
   const cached = issueStore.find(i => i.issue.number === parseInt(number) && i.repo.owner === owner && i.repo.repo === repo);
@@ -2350,21 +2440,86 @@ async function toggleIssue(item) {
 
 // ---------- View switching ----------
 function switchView(view) {
-  if (currentView === view) return;
+  if (currentView === view || isSwitching) return;
+
+  const cardIds = {
+    commits: { card: 'commitListCard', extra: 'loadMoreWrap' },
+    prs: { card: 'prListCard', extra: null },
+    issues: { card: 'issueListCard', extra: null }
+  };
+  const fromInfo = cardIds[currentView];
+  const toInfo = cardIds[view];
+  const fromCard = fromInfo && document.getElementById(fromInfo.card);
+  const toCard = toInfo && document.getElementById(toInfo.card);
+  const fromExtra = fromInfo && fromInfo.extra ? document.getElementById(fromInfo.extra) : null;
+  const toExtra = toInfo && toInfo.extra ? document.getElementById(toInfo.extra) : null;
+
   currentView = view;
   document.querySelectorAll('.view-tab').forEach(t => {
-    const isActive = t.dataset.view === view;
-    t.classList.toggle('active', isActive);
-    if (isActive) animateTabSwitch(t);
+    t.classList.toggle('active', t.dataset.view === view);
   });
-  document.getElementById('commitListCard').style.display = view === 'commits' ? '' : 'none';
-  document.getElementById('prListCard').style.display = view === 'prs' ? '' : 'none';
-  document.getElementById('issueListCard').style.display = view === 'issues' ? '' : 'none';
-  document.getElementById('loadMoreWrap').style.display = view === 'commits' ? '' : 'none';
+  moveTabIndicator(view);
 
-  if (view === 'prs' && !prLoaded && !prLoading) refreshPRs();
-  if (view === 'issues' && !issueLoaded && !issueLoading) refreshIssues();
-  applyRepoFilter();
+  if (typeof anime === 'undefined' || !fromCard || !toCard) {
+    document.getElementById('commitListCard').style.display = view === 'commits' ? '' : 'none';
+    document.getElementById('prListCard').style.display = view === 'prs' ? '' : 'none';
+    document.getElementById('issueListCard').style.display = view === 'issues' ? '' : 'none';
+    document.getElementById('loadMoreWrap').style.display = view === 'commits' ? '' : 'none';
+    if (view === 'prs' && !prLoaded && !prLoading) refreshPRs();
+    if (view === 'issues' && !issueLoaded && !issueLoading) refreshIssues();
+    applyRepoFilter();
+    return;
+  }
+
+  isSwitching = true;
+  const fadeOutTargets = [fromCard];
+  if (fromExtra) fadeOutTargets.push(fromExtra);
+
+  anime({
+    targets: fadeOutTargets,
+    opacity: [1, 0],
+    translateZ: [0, -600],
+    rotateX: [0, -60],
+    scale: [1, 0.8],
+    duration: 300,
+    easing: 'easeInCubic',
+    complete: function() {
+      fromCard.style.display = 'none';
+      fromCard.style.transform = '';
+      fromCard.style.opacity = '';
+      if (fromExtra) { fromExtra.style.display = 'none'; fromExtra.style.transform = ''; fromExtra.style.opacity = ''; }
+
+      toCard.style.display = '';
+      toCard.style.opacity = '0';
+      toCard.style.transform = 'translateY(40px)';
+      if (toExtra) {
+        toExtra.style.display = '';
+        toExtra.style.opacity = '0';
+        toExtra.style.transform = 'translateY(40px)';
+      }
+
+      if (view === 'prs' && !prLoaded && !prLoading) refreshPRs();
+      if (view === 'issues' && !issueLoaded && !issueLoading) refreshIssues();
+      applyRepoFilter();
+
+      const fadeInTargets = [toCard];
+      if (toExtra) fadeInTargets.push(toExtra);
+
+      anime({
+        targets: fadeInTargets,
+        opacity: [0, 1],
+        translateY: [40, 0],
+        duration: 300,
+        easing: 'easeOutCubic',
+        complete: function() {
+          toCard.style.transform = '';
+          toCard.style.opacity = '';
+          if (toExtra) { toExtra.style.transform = ''; toExtra.style.opacity = ''; }
+          isSwitching = false;
+        }
+      });
+    }
+  });
 }
 
 function filterRepo(key) {
@@ -2670,6 +2825,10 @@ if (cachedIssues && cachedIssues.data && cachedIssues.data.length > 0) {
 // Update "刷新于 x 分钟前" label every 30s (no API calls)
 setInterval(updateRefreshText, 30000);
 updateRefreshText();
+
+// Initialize tab indicator position
+initTabIndicator();
+window.addEventListener('resize', initTabIndicator);
 
 // Fetch fresh data on load (silent only if cache was restored)
 refreshAll(!isFirstLoad);
