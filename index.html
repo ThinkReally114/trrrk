@@ -1,0 +1,2678 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PVPUtils Commit Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
+<style>
+:root {
+  --md-sys-color-surface: #0f1118;
+  --md-sys-color-surface-container: #151720;
+  --md-sys-color-surface-container-high: #1b1d2a;
+  --md-sys-color-surface-container-highest: #212436;
+  --md-sys-color-primary: #c2b8ff;
+  --md-sys-color-primary-container: #3a3560;
+  --md-sys-color-on-primary-container: #e0dbff;
+  --md-sys-color-secondary: #ffb4d6;
+  --md-sys-color-secondary-container: #4a2535;
+  --md-sys-color-on-secondary-container: #ffd8e4;
+  --md-sys-color-tertiary: #7af0c0;
+  --md-sys-color-tertiary-container: #004d38;
+  --md-sys-color-on-tertiary-container: #b8f7dc;
+  --md-sys-color-outline: #5a5d72;
+  --md-sys-color-outline-variant: #3a3d50;
+  --md-sys-color-error: #ffb4ab;
+  --md-sys-color-error-container: #93000a;
+  --md-sys-elevation-1: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  --md-sys-elevation-2: 0 2px 6px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.3);
+  --md-sys-elevation-3: 0 4px 12px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3);
+  --font-display: 'Outfit', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  background: var(--md-sys-color-surface);
+  color: #e0e0f0;
+  font-family: var(--font-display);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== Aurora background — composable layers via CSS vars ===== */
+.bg-aurora {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.aurora-blob {
+  --blob-color: rgba(194, 184, 255, 0.5);
+  --blob-size: 40vmax;
+  --blob-x: 15%;
+  --blob-y: 20%;
+  --blob-duration: 22s;
+  --blob-delay: 0s;
+  position: absolute;
+  width: var(--blob-size);
+  height: var(--blob-size);
+  left: var(--blob-x);
+  top: var(--blob-y);
+  background: radial-gradient(circle, var(--blob-color) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(60px);
+  mix-blend-mode: screen;
+  opacity: 0.4;
+  will-change: transform, opacity;
+  animation: aurora-drift var(--blob-duration) ease-in-out var(--blob-delay) infinite;
+}
+
+.aurora-blob.b1 {
+  --blob-color: rgba(194, 184, 255, 0.55);
+  --blob-size: 45vmax;
+  --blob-x: -10%;
+  --blob-y: -5%;
+  --blob-duration: 24s;
+  --blob-delay: 0s;
+}
+
+.aurora-blob.b2 {
+  --blob-color: rgba(255, 180, 214, 0.45);
+  --blob-size: 38vmax;
+  --blob-x: 70%;
+  --blob-y: 10%;
+  --blob-duration: 28s;
+  --blob-delay: -6s;
+}
+
+.aurora-blob.b3 {
+  --blob-color: rgba(122, 240, 192, 0.4);
+  --blob-size: 42vmax;
+  --blob-x: 50%;
+  --blob-y: 70%;
+  --blob-duration: 26s;
+  --blob-delay: -12s;
+}
+
+.aurora-blob.b4 {
+  --blob-color: rgba(255, 180, 171, 0.25);
+  --blob-size: 30vmax;
+  --blob-x: 20%;
+  --blob-y: 60%;
+  --blob-duration: 30s;
+  --blob-delay: -18s;
+}
+
+@keyframes aurora-drift {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.4;
+  }
+  25% {
+    transform: translate(12vw, 8vh) scale(1.15);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate(-8vw, 14vh) scale(0.9);
+    opacity: 0.35;
+  }
+  75% {
+    transform: translate(6vw, -10vh) scale(1.1);
+    opacity: 0.5;
+  }
+}
+
+/* Flowing light streaks — subtle horizontal beams */
+.aurora-streak {
+  position: absolute;
+  width: 200%;
+  height: 1px;
+  left: -50%;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(194, 184, 255, 0.3) 30%,
+    rgba(255, 180, 214, 0.4) 50%,
+    rgba(122, 240, 192, 0.3) 70%,
+    transparent 100%
+  );
+  filter: blur(1px);
+  opacity: 0;
+  animation: streak-flow 12s linear infinite;
+}
+
+.aurora-streak.s1 { top: 25%; animation-delay: 0s; animation-duration: 14s; }
+.aurora-streak.s2 { top: 55%; animation-delay: -4s; animation-duration: 18s; opacity: 0; }
+.aurora-streak.s3 { top: 75%; animation-delay: -9s; animation-duration: 16s; }
+
+@keyframes streak-flow {
+  0% { transform: translateX(-30%) translateY(0); opacity: 0; }
+  15% { opacity: 0.6; }
+  85% { opacity: 0.6; }
+  100% { transform: translateX(30%) translateY(-2px); opacity: 0; }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob, .aurora-streak {
+    animation: none;
+    opacity: 0.3;
+  }
+}
+
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(194, 184, 255, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 85% 60%, rgba(255, 180, 214, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(122, 240, 192, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bg-grid::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 30%, transparent 70%);
+}
+
+.header {
+  position: relative;
+  z-index: 1;
+  padding: 48px 32px 32px;
+  text-align: center;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--md-sys-color-primary), transparent);
+}
+
+.header h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--md-sys-color-primary), var(--md-sys-color-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header .subtitle {
+  color: #7a7d94;
+  font-size: 0.85rem;
+  margin-top: 6px;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+}
+
+.timeline-card {
+  position: relative;
+  z-index: 1;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 32px 48px;
+}
+
+.repo-badges {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.repo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 8px;
+  border-radius: 0;
+  background: var(--md-sys-color-surface-container);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  font-size: 0.78rem;
+  color: #b0b3c8;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.repo-badge:hover {
+  border-color: var(--md-sys-color-outline);
+  transform: translateY(-1px);
+}
+
+.repo-badge.repo-a.active {
+  background: var(--md-sys-color-primary-container);
+  border-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.repo-badge.repo-b.active {
+  background: var(--md-sys-color-tertiary-container);
+  border-color: var(--md-sys-color-tertiary);
+  color: var(--md-sys-color-on-tertiary-container);
+}
+
+.repo-badge.active .count {
+  background: rgba(255,255,255,0.16);
+  color: inherit;
+}
+
+.repo-badge .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.repo-badge.repo-a .dot {
+  background: var(--md-sys-color-primary);
+  box-shadow: 0 0 6px rgba(194, 184, 255, 0.5);
+}
+
+.repo-badge.repo-b .dot {
+  background: var(--md-sys-color-tertiary);
+  box-shadow: 0 0 6px rgba(122, 240, 192, 0.5);
+}
+
+.repo-badge .count {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #7a7d94;
+  padding: 1px 6px;
+  background: var(--md-sys-color-surface-container-high);
+  border-radius: 0;
+}
+
+/* View tabs */
+.view-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 0 auto 20px;
+  padding: 4px;
+  background: var(--md-sys-color-surface-container);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 0;
+  width: fit-content;
+}
+
+.view-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 18px;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  color: #8a8da0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-family: var(--font-display);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.view-tab:hover { color: #d0d0e8; }
+
+.view-tab.active {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.view-tab svg { width: 13px; height: 13px; }
+
+.wide-label { display: inline; }
+.narrow-label { display: none; }
+
+@media (max-width: 520px) {
+  .wide-label { display: none; }
+  .narrow-label { display: inline; }
+}
+
+.view-tab .tab-count {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  padding: 1px 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 0;
+  min-width: 18px;
+  text-align: center;
+}
+
+.view-tab.active .tab-count { background: rgba(255,255,255,0.16); }
+
+.commit-list-card, .pr-list-card, .issue-list-card {
+  background: var(--md-sys-color-surface-container);
+  border-radius: 0;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.commit-list-card::before, .pr-list-card::before, .issue-list-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 0;
+}
+
+.commit-list-card::before {
+  background: linear-gradient(90deg, var(--md-sys-color-primary), var(--md-sys-color-secondary), var(--md-sys-color-tertiary));
+}
+
+.pr-list-card::before {
+  background: linear-gradient(90deg, var(--md-sys-color-secondary), var(--md-sys-color-primary));
+}
+
+.issue-list-card::before {
+  background: linear-gradient(90deg, var(--md-sys-color-tertiary), var(--md-sys-color-secondary));
+}
+
+.commit-list {
+  padding: 12px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.commit-list::-webkit-scrollbar { display: none; }
+
+.commit-item, .pr-item, .issue-item {
+  padding: 14px 16px;
+  border-radius: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  transition: background 0.25s ease;
+  position: relative;
+  cursor: pointer;
+  color: inherit;
+  flex-direction: column;
+}
+
+.commit-item.no-anim, .pr-item.no-anim, .issue-item.no-anim { }
+
+.commit-item:hover, .pr-item:hover, .issue-item:hover {
+  background: var(--md-sys-color-surface-container-highest);
+}
+
+.commit-item + .commit-item,
+.pr-item + .pr-item,
+.issue-item + .issue-item { margin-top: 2px; }
+
+.commit-item-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  width: 100%;
+}
+
+.timeline-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.commit-item.repo-a .timeline-dot {
+  background: var(--md-sys-color-primary);
+  box-shadow: 0 0 6px rgba(194, 184, 255, 0.4);
+}
+
+.commit-item.repo-b .timeline-dot {
+  background: var(--md-sys-color-tertiary);
+  box-shadow: 0 0 6px rgba(122, 240, 192, 0.4);
+}
+
+.pr-item.state-open .timeline-dot,
+.issue-item.state-open .timeline-dot {
+  background: var(--md-sys-color-tertiary);
+  box-shadow: 0 0 6px rgba(122, 240, 192, 0.4);
+}
+
+.pr-item.state-closed .timeline-dot,
+.issue-item.state-closed .timeline-dot {
+  background: var(--md-sys-color-error);
+  box-shadow: 0 0 6px rgba(255, 180, 171, 0.4);
+}
+
+.pr-item.state-merged .timeline-dot {
+  background: var(--md-sys-color-primary);
+  box-shadow: 0 0 6px rgba(194, 184, 255, 0.4);
+}
+
+.pr-item.state-draft .timeline-dot {
+  background: #6a6d80;
+}
+
+.commit-item::after, .pr-item::after, .issue-item::after {
+  content: '';
+  position: absolute;
+  left: 21px;
+  top: 34px;
+  bottom: -4px;
+  width: 1px;
+  background: var(--md-sys-color-outline-variant);
+}
+
+.commit-item:last-child::after,
+.pr-item:last-child::after,
+.issue-item:last-child::after { display: none; }
+
+.commit-item.expanded::after,
+.pr-item.expanded::after,
+.issue-item.expanded::after { display: none; }
+
+.commit-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.commit-message {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #d0d0e8;
+  line-height: 1.4;
+  word-break: break-word;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.commit-message .pr-num-prefix {
+  font-family: var(--font-mono);
+  color: #7a7d94;
+  font-weight: 600;
+}
+
+.commit-translation {
+  font-size: 0.78rem;
+  color: var(--md-sys-color-secondary);
+  font-weight: 400;
+  margin-top: 4px;
+  padding-left: 2px;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  opacity: 0.85;
+}
+
+.commit-translation::before {
+  content: '';
+  width: 14px;
+  height: 1px;
+  background: var(--md-sys-color-outline);
+  flex-shrink: 0;
+}
+
+.commit-translation.loading { color: #5a5d72; }
+
+.expand-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 0;
+  background: var(--md-sys-color-surface-container-highest);
+  color: #7a7d94;
+  transition: transform 0.3s ease, background 0.2s;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.commit-item:hover .expand-arrow,
+.pr-item:hover .expand-arrow,
+.issue-item:hover .expand-arrow {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.commit-item.expanded .expand-arrow,
+.pr-item.expanded .expand-arrow,
+.issue-item.expanded .expand-arrow {
+  transform: rotate(90deg);
+}
+
+.commit-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.repo-tag {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 0;
+  letter-spacing: 0.02em;
+}
+
+.repo-tag.repo-a {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.repo-tag.repo-b {
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+}
+
+.state-badge {
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 0;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-transform: uppercase;
+}
+
+.state-badge svg { width: 10px; height: 10px; }
+
+.state-badge.state-open {
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+}
+
+.state-badge.state-closed {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-error);
+}
+
+.state-badge.state-merged {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.state-badge.state-draft {
+  background: var(--md-sys-color-surface-container-highest);
+  color: #8a8da0;
+}
+
+.label-tag {
+  font-size: 0.66rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid currentColor;
+}
+
+.label-tag::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.commit-author {
+  font-size: 0.75rem;
+  color: #7a7d94;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.commit-author img {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+}
+
+.commit-sha {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #5a5d72;
+  padding: 2px 8px;
+  background: var(--md-sys-color-surface-container-highest);
+  border-radius: 0;
+  transition: color 0.2s;
+}
+
+.commit-item:hover .commit-sha { color: var(--md-sys-color-primary); }
+
+.commit-time {
+  font-size: 0.72rem;
+  color: #5a5d72;
+  font-family: var(--font-mono);
+}
+
+.pr-branches {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #8a8da0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  background: var(--md-sys-color-surface-container-highest);
+  border-radius: 0;
+}
+
+.pr-branches .branch-arrow { color: #5a5d72; }
+
+.comment-count {
+  font-size: 0.7rem;
+  color: #7a7d94;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+}
+
+.comment-count svg { width: 11px; height: 11px; }
+
+.pr-link-inline {
+  font-size: 0.68rem;
+  padding: 2px 8px;
+  border-radius: 0;
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.pr-link-inline:hover {
+  background: var(--md-sys-color-secondary);
+  color: var(--md-sys-color-surface);
+}
+
+.pr-link-inline svg { width: 11px; height: 11px; }
+
+.commit-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin 0.3s ease;
+  opacity: 0;
+  margin-left: 24px;
+  margin-top: 0;
+  width: calc(100% - 24px);
+}
+
+.commit-item.expanded .commit-detail,
+.pr-item.expanded .commit-detail,
+.issue-item.expanded .commit-detail {
+  max-height: 3000px;
+  opacity: 1;
+  margin-top: 12px;
+}
+
+.detail-grid {
+  background: var(--md-sys-color-surface);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 0;
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+}
+
+.detail-files {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.detail-files-title {
+  font-size: 0.72rem;
+  color: #8a8da0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.detail-files-title .file-count {
+  font-family: var(--font-mono);
+  color: var(--md-sys-color-secondary);
+  padding: 1px 8px;
+  background: var(--md-sys-color-secondary-container);
+  border-radius: 0;
+  font-size: 0.7rem;
+}
+
+.file-block {
+  background: var(--md-sys-color-surface-container);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 0;
+  overflow: hidden;
+  scroll-margin-top: 80px;
+}
+
+.file-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--md-sys-color-surface-container-high);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.file-name {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: #d0d0e8;
+  font-weight: 500;
+  word-break: break-all;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.file-name svg {
+  width: 13px;
+  height: 13px;
+  color: #6a6d80;
+  flex-shrink: 0;
+}
+
+.file-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.file-stats .add { color: var(--md-sys-color-tertiary); }
+.file-stats .del { color: var(--md-sys-color-error); }
+
+.file-toggle {
+  background: var(--md-sys-color-surface-container-highest);
+  border: none;
+  color: #8a8da0;
+  cursor: pointer;
+  padding: 3px 10px;
+  border-radius: 0;
+  font-size: 0.68rem;
+  font-family: var(--font-display);
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.file-toggle:hover {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.file-diff {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.file-block.open .file-diff {
+  max-height: 600px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.file-diff::-webkit-scrollbar { width: 6px; height: 6px; }
+.file-diff::-webkit-scrollbar-track { background: transparent; }
+.file-diff::-webkit-scrollbar-thumb {
+  background: var(--md-sys-color-outline-variant);
+  border-radius: 0;
+}
+
+.diff-line {
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.55;
+  padding: 0;
+}
+
+.diff-line .line-num {
+  width: 42px;
+  min-width: 42px;
+  text-align: right;
+  padding: 0 8px;
+  color: #4a4d5e;
+  user-select: none;
+  border-right: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.diff-line .line-content {
+  padding: 0 10px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  flex: 1;
+}
+
+.diff-line.add { background: rgba(122, 240, 192, 0.08); }
+.diff-line.add .line-content { color: #a8f0d0; }
+.diff-line.add .line-num { background: rgba(122, 240, 192, 0.05); }
+
+.diff-line.del { background: rgba(255, 180, 171, 0.08); }
+.diff-line.del .line-content { color: #ffc8c0; }
+.diff-line.del .line-num { background: rgba(255, 180, 171, 0.05); }
+
+.diff-line.hunk { background: var(--md-sys-color-surface-container-high); color: #6a6d80; }
+.diff-line.hunk .line-content { color: #6a6d80; font-style: italic; }
+.diff-line.context .line-content { color: #7a7d94; }
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.detail-label {
+  font-size: 0.68rem;
+  color: #6a6d80;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+.detail-value {
+  font-size: 0.82rem;
+  color: #d0d0e8;
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.detail-value.additions { color: var(--md-sys-color-tertiary); }
+.detail-value.deletions { color: var(--md-sys-color-error); }
+.detail-value.total { color: var(--md-sys-color-secondary); }
+
+.detail-stats-bar {
+  grid-column: 1 / -1;
+  height: 6px;
+  border-radius: 0;
+  background: var(--md-sys-color-surface-container-highest);
+  overflow: hidden;
+  display: flex;
+  margin-top: 4px;
+}
+
+.stat-add { background: var(--md-sys-color-tertiary); transition: width 0.5s ease; }
+.stat-del { background: var(--md-sys-color-error); transition: width 0.5s ease; }
+
+.detail-message, .pr-body, .issue-body {
+  grid-column: 1 / -1;
+  font-size: 0.78rem;
+  color: #b0b3c8;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: var(--md-sys-color-surface-container-highest);
+  padding: 12px 14px;
+  border-radius: 0;
+  font-family: var(--font-mono);
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.detail-message::-webkit-scrollbar,
+.pr-body::-webkit-scrollbar,
+.issue-body::-webkit-scrollbar { width: 4px; }
+.detail-message::-webkit-scrollbar-thumb,
+.pr-body::-webkit-scrollbar-thumb,
+.issue-body::-webkit-scrollbar-thumb { background: var(--md-sys-color-outline-variant); border-radius: 0; }
+
+.pr-body:empty, .issue-body:empty { display: none; }
+
+.pr-body img.body-image, .issue-body img.body-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0;
+  margin: 6px 0;
+  display: block;
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.pr-body img.body-image:hover, .issue-body img.body-image:hover {
+  border-color: var(--md-sys-color-primary);
+}
+
+.detail-link {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  text-decoration: none;
+  padding: 6px 12px;
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  border-radius: 0;
+  width: fit-content;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.detail-link:hover {
+  background: var(--md-sys-color-secondary);
+  color: var(--md-sys-color-surface);
+}
+
+.detail-loading {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 16px;
+  color: #6a6d80;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.detail-loading .mini-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--md-sys-color-outline-variant);
+  border-top-color: var(--md-sys-color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.commit-item.new-commit {
+  animation: new-commit-glow 1.5s ease-out;
+}
+
+@keyframes new-commit-glow {
+  0% { background: rgba(194, 184, 255, 0.15); }
+  100% { background: transparent; }
+}
+
+.load-more-wrap {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.load-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border-radius: 0;
+  background: var(--md-sys-color-surface-container);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  color: #b0b3c8;
+  font-size: 0.82rem;
+  font-weight: 500;
+  font-family: var(--font-display);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.load-more:hover {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  border-color: var(--md-sys-color-primary);
+  transform: translateY(-1px);
+}
+
+.load-more:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.load-more .mini-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--md-sys-color-outline-variant);
+  border-top-color: var(--md-sys-color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: none;
+}
+
+.load-more.loading .mini-spinner { display: block; }
+.load-more.loading .load-more-text { opacity: 0.7; }
+
+.loading-shimmer {
+  background: linear-gradient(90deg, var(--md-sys-color-surface-container) 0%, var(--md-sys-color-surface-container-highest) 50%, var(--md-sys-color-surface-container) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0;
+  height: 16px;
+  margin: 10px 16px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #5a5d72;
+}
+
+.empty-state svg {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  opacity: 0.3;
+}
+
+.refresh-indicator {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  padding: 8px 16px;
+  border-radius: 0;
+  background: var(--md-sys-color-surface-container-high);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  font-size: 0.75rem;
+  color: #b0b3c8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.refresh-indicator:hover {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  border-color: var(--md-sys-color-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--md-sys-elevation-2);
+}
+
+.refresh-indicator:active { transform: translateY(0); }
+
+.refresh-indicator.refreshing {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.refresh-indicator .spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--md-sys-color-outline);
+  border-top-color: var(--md-sys-color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.refresh-indicator.refreshing .spinner { opacity: 1; }
+
+.refresh-indicator .refresh-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--md-sys-color-tertiary);
+  transition: transform 0.4s ease;
+}
+
+.refresh-indicator:hover .refresh-icon {
+  transform: rotate(180deg);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.refresh-indicator .live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--md-sys-color-tertiary);
+  box-shadow: 0 0 6px var(--md-sys-color-tertiary);
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  z-index: 20;
+  padding: 12px 24px;
+  border-radius: 0;
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-error);
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--md-sys-elevation-3);
+}
+
+.error-toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+.footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 24px 32px 40px;
+  font-size: 0.75rem;
+  color: #4a4d5e;
+}
+
+@media (max-width: 520px) {
+  .timeline-card { padding: 0 12px 32px; }
+  .header { padding: 28px 12px 20px; }
+  .header h1 { font-size: 1.35rem; }
+  .header .subtitle { font-size: 0.75rem; }
+  .header::before { width: 200px; }
+  .refresh-indicator {
+    top: 6px;
+    right: 6px;
+    padding: 5px 10px;
+    font-size: 0.65rem;
+    gap: 5px;
+    border-radius: 0;
+  }
+  .refresh-indicator .refresh-icon { width: 11px; height: 11px; }
+  .refresh-indicator .spinner { width: 11px; height: 11px; }
+  .detail-grid {
+    grid-template-columns: 1fr 1fr;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+  .view-tab {
+    padding: 5px 10px;
+    font-size: 0.7rem;
+    gap: 4px;
+  }
+  .view-tab .tab-count { font-size: 0.62rem; padding: 1px 4px; }
+  .view-tabs {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .commit-item { padding: 12px 14px; }
+  .commit-item-header { gap: 10px; }
+  .commit-detail { margin-left: 16px; }
+  .commit-message { font-size: 0.8rem; }
+  .commit-meta { gap: 6px; }
+  .commit-sha { font-size: 0.65rem; padding: 1px 6px; }
+  .commit-time { font-size: 0.68rem; }
+  .repo-tag { font-size: 0.64rem; }
+  .commit-author { font-size: 0.7rem; }
+  .detail-value { font-size: 0.74rem; }
+  .detail-label { font-size: 0.62rem; }
+  .file-name { font-size: 0.7rem; }
+  .file-stats { font-size: 0.65rem; gap: 6px; }
+  .file-toggle { font-size: 0.64rem; padding: 2px 8px; }
+  .diff-line { font-size: 0.66rem; }
+  .diff-line .line-num { width: 32px; min-width: 32px; font-size: 0.6rem; padding: 0 4px; }
+  .load-more { padding: 8px 18px; font-size: 0.76rem; }
+  .commit-item.expanded .commit-detail { max-height: 2000px; }
+  .pr-branches { font-size: 0.64rem; }
+  .state-badge { font-size: 0.6rem; padding: 1px 5px; }
+  .label-tag { font-size: 0.6rem; }
+  .comment-count { font-size: 0.65rem; }
+  .pr-link-inline { font-size: 0.62rem; padding: 1px 6px; }
+  .commit-item::after, .pr-item::after, .issue-item::after { left: 19px; top: 30px; }
+}
+@media (max-width: 380px) {
+  .detail-grid { grid-template-columns: 1fr; }
+  .view-tab { padding: 4px 8px; font-size: 0.65rem; }
+  .refresh-indicator { padding: 4px 8px; font-size: 0.6rem; }
+  .commit-item { padding: 10px 12px; }
+  .commit-detail { margin-left: 10px; }
+  .commit-item::after, .pr-item::after, .issue-item::after { left: 16px; top: 26px; }
+  .timeline-dot { width: 8px; height: 8px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-aurora">
+  <div class="aurora-blob b1"></div>
+  <div class="aurora-blob b2"></div>
+  <div class="aurora-blob b3"></div>
+  <div class="aurora-blob b4"></div>
+  <div class="aurora-streak s1"></div>
+  <div class="aurora-streak s2"></div>
+  <div class="aurora-streak s3"></div>
+</div>
+<div class="bg-grid"></div>
+
+<div class="refresh-indicator" id="refreshIndicator" onclick="manualRefresh()" title="点击手动刷新">
+  <svg class="refresh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+  <span class="spinner"></span>
+  <span id="refreshText">点击刷新</span>
+</div>
+
+<div class="header">
+  <h1>PVPUtils Commit Tracker</h1>
+  <p class="subtitle">实时追踪 PVPUtils 及其修复分支的提交 / PR / Issues 动态</p>
+</div>
+
+<div class="timeline-card">
+  <div class="repo-badges" id="repoBadges">
+    <div class="repo-badge repo-a active" data-repo="a" onclick="filterRepo('a')">
+      <span class="dot"></span>
+      <span>bakabaicai/PVPUtils</span>
+      <span class="count" id="countA">-</span>
+    </div>
+    <div class="repo-badge repo-b active" data-repo="b" onclick="filterRepo('b')">
+      <span class="dot"></span>
+      <span>ThinkReally114/pvputils-fix</span>
+      <span class="count" id="countB">-</span>
+    </div>
+  </div>
+
+  <div class="view-tabs" id="viewTabs">
+    <button class="view-tab active" data-view="commits" onclick="switchView('commits')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="12" r="2"/><path d="M6 8v8M8 6h6a4 4 0 0 1 4 4"/></svg>
+      提交动态 <span class="tab-count" id="tabCommitCount">-</span>
+    </button>
+    <button class="view-tab" data-view="prs" onclick="switchView('prs')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M6 8v8M18 8v8M6 8a4 4 0 0 1 4-4h4"/></svg>
+      <span class="wide-label">Pull Requests</span><span class="narrow-label">PR</span> <span class="tab-count" id="tabPRCount">-</span>
+    </button>
+    <button class="view-tab" data-view="issues" onclick="switchView('issues')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="M12 8v.01"/></svg>
+      Issues <span class="tab-count" id="tabIssueCount">-</span>
+    </button>
+  </div>
+
+  <div class="commit-list-card" id="commitListCard">
+    <div class="commit-list" id="commitList">
+      <div class="loading-shimmer" style="width:80%"></div>
+      <div class="loading-shimmer" style="width:65%"></div>
+      <div class="loading-shimmer" style="width:75%"></div>
+      <div class="loading-shimmer" style="width:55%"></div>
+      <div class="loading-shimmer" style="width:70%"></div>
+      <div class="loading-shimmer" style="width:60%"></div>
+    </div>
+  </div>
+
+  <div class="pr-list-card" id="prListCard" style="display:none">
+    <div class="commit-list" id="prList">
+      <div class="loading-shimmer" style="width:70%"></div>
+      <div class="loading-shimmer" style="width:85%"></div>
+      <div class="loading-shimmer" style="width:60%"></div>
+    </div>
+  </div>
+
+  <div class="issue-list-card" id="issueListCard" style="display:none">
+    <div class="commit-list" id="issueList">
+      <div class="loading-shimmer" style="width:75%"></div>
+      <div class="loading-shimmer" style="width:65%"></div>
+      <div class="loading-shimmer" style="width:80%"></div>
+    </div>
+  </div>
+
+  <div class="load-more-wrap" id="loadMoreWrap" style="display:none">
+    <button class="load-more" id="loadMoreBtn" onclick="loadMore()">
+      <span class="mini-spinner"></span>
+      <span class="load-more-text">查看更多...</span>
+    </button>
+  </div>
+</div>
+
+<div class="footer">
+  Data from GitHub API &middot; 点击右上角手动刷新
+</div>
+
+<div class="error-toast" id="errorToast"></div>
+
+<script>
+const REPOS = [
+  { owner: 'bakabaicai', repo: 'PVPUtils', key: 'a', label: 'PVPUtils', countEl: 'countA' },
+  { owner: 'ThinkReally114', repo: 'pvputils-fix', key: 'b', label: 'pvputils-fix', countEl: 'countB' }
+];
+
+const REFRESH_INTERVAL = 30000;
+const INITIAL_PAGE_SIZE = 10;
+const PR_ISSUE_PAGE_SIZE = 15;
+
+// Commits state
+let knownShas = new Set();
+let isFirstLoad = true;
+let detailCache = new Map();
+let translationCache = new Map();
+let displayCount = INITIAL_PAGE_SIZE;
+let isLoadingMore = false;
+let commitStore = [];
+
+// Repo filter state: 'all' | 'a' | 'b'
+let repoFilter = 'all';
+
+// PR / Issues state
+let currentView = 'commits';
+let prStore = [];
+let issueStore = [];
+let prDetailCache = new Map();
+let prLoaded = false;
+let issueLoaded = false;
+let prLoading = false;
+let issueLoading = false;
+
+// ETag + localStorage cache
+let etagStore = {};
+let lastRefreshTime = null;
+const CACHE_PREFIX = 'pvputils_v1_';
+
+function loadEtags() {
+  try { etagStore = JSON.parse(localStorage.getItem(CACHE_PREFIX + 'etags') || '{}'); }
+  catch { etagStore = {}; }
+}
+
+function saveEtags() {
+  try { localStorage.setItem(CACHE_PREFIX + 'etags', JSON.stringify(etagStore)); } catch {}
+}
+
+function saveCache(key, data) {
+  try {
+    localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({
+      data, ts: Date.now()
+    }));
+  } catch {}
+}
+
+const CACHE_TTL = 60 * 60 * 1000;
+
+function loadCache(key) {
+  try {
+    const raw = localStorage.getItem(CACHE_PREFIX + key);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed.ts && (Date.now() - parsed.ts) > CACHE_TTL) {
+      localStorage.removeItem(CACHE_PREFIX + key);
+      return null;
+    }
+    return parsed;
+  } catch { return null; }
+}
+
+async function fetchWithEtag(url, etagKey) {
+  const headers = {};
+  if (etagStore[etagKey]) {
+    headers['If-None-Match'] = etagStore[etagKey];
+  }
+  const res = await fetch(url, { headers });
+  const etag = res.headers.get('ETag');
+  if (etag) {
+    etagStore[etagKey] = etag;
+    saveEtags();
+  }
+  if (res.status === 304) {
+    return { data: null, notModified: true, rateLimited: false };
+  }
+  if (res.status === 403 || res.status === 429) {
+    return { data: null, notModified: false, rateLimited: true };
+  }
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  return { data, notModified: false, rateLimited: false };
+}
+
+// ---------- Utils ----------
+function formatTime(dateStr) {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diff = now - date;
+  const mins = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+
+  if (mins < 1) return '刚刚';
+  if (mins < 60) return `${mins} 分钟前`;
+  if (hours < 24) return `${hours} 小时前`;
+  if (days < 7) return `${days} 天前`;
+  return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+}
+
+function formatFullTime(dateStr) {
+  if (!dateStr) return '-';
+  const date = new Date(dateStr);
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+  });
+}
+
+function shortSha(sha) { return sha ? sha.slice(0, 7) : ''; }
+
+// ---------- Animation helpers (anime.js) ----------
+function animateListEnter(listEl, newShas) {
+  if (typeof anime === 'undefined') return;
+  const items = listEl.querySelectorAll('.commit-item, .pr-item, .issue-item');
+  if (items.length === 0) return;
+
+  const isNewSet = new Set(newShas || []);
+  const newItems = [];
+  const oldItems = [];
+
+  items.forEach(item => {
+    const sha = item.dataset.sha;
+    if (newShas && isNewSet.has(sha)) {
+      newItems.push(item);
+    } else if (!newShas) {
+      oldItems.push(item);
+    } else {
+      oldItems.push(item);
+    }
+  });
+
+  if (oldItems.length > 0) {
+    anime({
+      targets: oldItems,
+      opacity: [0, 1],
+      translateY: [12, 0],
+      duration: 480,
+      delay: anime.stagger(45, { start: 0 }),
+      easing: 'easeOutCubic'
+    });
+  }
+
+  if (newItems.length > 0) {
+    anime({
+      targets: newItems,
+      opacity: [0, 1],
+      translateY: [20, 0],
+      scale: [0.98, 1],
+      duration: 620,
+      delay: anime.stagger(60, { start: 120 }),
+      easing: 'easeOutBack',
+      complete: function(anim) {
+        newItems.forEach(el => {
+          anime({
+            targets: el,
+            boxShadow: [
+              '0 0 0 0 rgba(255, 180, 214, 0)',
+              '0 0 0 3px rgba(255, 180, 214, 0.55)',
+              '0 0 0 0 rgba(255, 180, 214, 0)'
+            ],
+            duration: 2200,
+            easing: 'easeOutSine'
+          });
+        });
+      }
+    });
+  }
+}
+
+function animateExpand(detailEl) {
+  if (typeof anime === 'undefined') return;
+  detailEl.style.maxHeight = '0px';
+  detailEl.style.opacity = '0';
+  anime({
+    targets: detailEl,
+    maxHeight: ['0px', '3000px'],
+    opacity: [0, 1],
+    duration: 420,
+    easing: 'easeOutCubic'
+  });
+}
+
+function animateCollapse(detailEl, callback) {
+  if (typeof anime === 'undefined') { if (callback) callback(); return; }
+  anime({
+    targets: detailEl,
+    maxHeight: ['3000px', '0px'],
+    opacity: [1, 0],
+    duration: 280,
+    easing: 'easeInCubic',
+    complete: function() { if (callback) callback(); }
+  });
+}
+
+function animateRefreshPulse(el) {
+  if (typeof anime === 'undefined') return;
+  anime({
+    targets: el,
+    scale: [1, 0.92, 1],
+    duration: 420,
+    easing: 'easeInOutQuad'
+  });
+}
+
+function animateTabSwitch(tabEl) {
+  if (typeof anime === 'undefined') return;
+  anime({
+    targets: tabEl,
+    scale: [0.96, 1],
+    duration: 320,
+    easing: 'easeOutBack'
+  });
+}
+
+function escapeHtml(str) {
+  if (str == null) return '';
+  const div = document.createElement('div');
+  div.textContent = String(str);
+  return div.innerHTML;
+}
+
+function renderBodyHtml(body) {
+  if (!body) return '';
+  const images = [];
+  let text = body;
+  text = text.replace(/<img\s+[^>]*>/gi, (match) => {
+    const srcMatch = match.match(/src=["']([^"']+)["']/i);
+    if (!srcMatch) return match;
+    const src = srcMatch[1];
+    if (!/^https?:\/\//i.test(src)) return match;
+    const widthMatch = match.match(/width=["']?(\d+)["']?/i);
+    const heightMatch = match.match(/height=["']?(\d+)["']?/i);
+    const altMatch = match.match(/alt=["']([^"']*)["']/i);
+    const idx = images.length;
+    const img = `<img src="${escapeHtml(src)}" loading="lazy"${widthMatch ? ` width="${widthMatch[1]}"` : ''}${heightMatch ? ` height="${heightMatch[1]}"` : ''}${altMatch ? ` alt="${escapeHtml(altMatch[1])}"` : ''} class="body-image">`;
+    images.push(img);
+    return `@@IMG_${idx}@@`;
+  });
+  text = text.replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g, (match, alt, url) => {
+    const trimmedUrl = url.trim();
+    if (!/^https?:\/\//i.test(trimmedUrl)) return match;
+    const idx = images.length;
+    const img = `<img src="${escapeHtml(trimmedUrl)}" alt="${escapeHtml(alt)}" loading="lazy" class="body-image">`;
+    images.push(img);
+    return `@@IMG_${idx}@@`;
+  });
+  text = escapeHtml(text);
+  for (let i = 0; i < images.length; i++) {
+    text = text.split(`@@IMG_${i}@@`).join(images[i]);
+  }
+  return text;
+}
+
+function isChinese(str) {
+  return /[\u4e00-\u9fa5]/.test(str);
+}
+
+function extractPrNumber(message) {
+  const match = message.match(/#(\d+)/);
+  return match ? match[1] : null;
+}
+
+function hexToRgba(hex, alpha) {
+  if (!hex || hex.length !== 6) return `rgba(140,140,140,${alpha})`;
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// Shared snippet renderers
+function repoTagHtml(repo) {
+  return `<span class="repo-tag ${repo.key === 'a' ? 'repo-a' : 'repo-b'}">${escapeHtml(repo.label)}</span>`;
+}
+
+function authorHtml(user) {
+  if (!user) return '';
+  return `<span class="commit-author">
+    ${user.avatar_url ? `<img src="${user.avatar_url}" alt="" loading="lazy">` : ''}
+    ${escapeHtml(user.login || '?')}
+  </span>`;
+}
+
+function labelsHtml(labels) {
+  if (!labels || labels.length === 0) return '';
+  return labels.map(l => {
+    const color = (l.color || '888888');
+    return `<span class="label-tag" style="color:#${color};background:${hexToRgba(color, 0.1)}">${escapeHtml(l.name)}</span>`;
+  }).join('');
+}
+
+function commentCountHtml(count) {
+  if (!count || count === 0) return '';
+  return `<span class="comment-count">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    ${count}
+  </span>`;
+}
+
+function expandArrowHtml() {
+  return `<span class="expand-arrow">
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </span>`;
+}
+
+function detailLinkHtml(url, label) {
+  return `<a class="detail-link" href="${url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    ${label || '在 GitHub 查看'}
+  </a>`;
+}
+
+function statsBarHtml(additions, deletions) {
+  const total = additions + deletions;
+  if (total === 0) return '';
+  const addPct = additions / total * 100;
+  const delPct = deletions / total * 100;
+  return `<div class="detail-stats-bar">
+    <div class="stat-add" style="width:${addPct}%"></div>
+    <div class="stat-del" style="width:${delPct}%"></div>
+  </div>`;
+}
+
+function emptyStateHtml(text, iconSvg) {
+  return `<div class="empty-state">
+    ${iconSvg || '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>'}
+    <p>${escapeHtml(text)}</p>
+  </div>`;
+}
+
+// ---------- Translation ----------
+async function translateText(text) {
+  if (translationCache.has(text)) return translationCache.get(text);
+  try {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${encodeURIComponent(text)}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('translate failed');
+    const data = await res.json();
+    let translated = '';
+    if (data && data[0]) {
+      for (const seg of data[0]) {
+        if (seg[0]) translated += seg[0];
+      }
+    }
+    translationCache.set(text, translated);
+    return translated;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function tryTranslate(message, sha) {
+  const firstLine = message.split('\n')[0];
+  if (isChinese(firstLine)) return;
+  const transEl = document.getElementById(`trans-${sha}`);
+  if (!transEl) return;
+  transEl.classList.add('loading');
+  transEl.textContent = '翻译中...';
+  const translated = await translateText(firstLine);
+  if (translated && translated.trim() !== firstLine.trim()) {
+    transEl.classList.remove('loading');
+    transEl.textContent = translated;
+  } else {
+    transEl.style.display = 'none';
+  }
+}
+
+// ---------- Commit rendering ----------
+function renderCommit(commit, repoConfig, isNew, animate) {
+  const msg = commit.commit.message.split('\n')[0];
+  const author = commit.commit.author.name;
+  const avatar = commit.author ? commit.author.avatar_url : '';
+  const sha = commit.sha;
+  const time = formatTime(commit.commit.author.date);
+  const prNum = extractPrNumber(msg);
+  const needsTranslation = !isChinese(msg);
+  const animClass = animate ? '' : 'no-anim';
+
+  const prLink = prNum ? `
+    <a class="pr-link-inline" href="https://github.com/${repoConfig.owner}/${repoConfig.repo}/pull/${prNum}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M6 8v8M18 8v8M6 8a4 4 0 0 1 4-4h4"/></svg>
+      #${prNum}
+    </a>
+  ` : '';
+
+  return `
+    <div class="commit-item repo-${repoConfig.key} ${isNew ? 'new-commit' : ''} ${animClass}" data-sha="${sha}" data-owner="${repoConfig.owner}" data-repo="${repoConfig.repo}">
+      <div class="commit-item-header">
+        <span class="timeline-dot"></span>
+        <div class="commit-content">
+          <div class="commit-message">
+            ${escapeHtml(msg)}
+            ${prLink}
+            ${expandArrowHtml()}
+          </div>
+          ${needsTranslation ? `<div class="commit-translation" id="trans-${sha}"></div>` : ''}
+          <div class="commit-meta">
+            ${repoTagHtml(repoConfig)}
+            <span class="commit-author">
+              ${avatar ? `<img src="${avatar}" alt="" loading="lazy">` : ''}
+              ${escapeHtml(author)}
+            </span>
+            <span class="commit-sha">${shortSha(sha)}</span>
+            <span class="commit-time">${time}</span>
+          </div>
+        </div>
+      </div>
+      <div class="commit-detail" id="detail-${sha}"></div>
+    </div>
+  `;
+}
+
+function renderCommitDetail(detail, commit, repoConfig) {
+  const stats = detail.stats || { additions: 0, deletions: 0, total: 0 };
+  const files = detail.files || [];
+  const fullMessage = commit.commit.message;
+  const filesHtml = files.map(f => renderFileBlock(f)).join('');
+
+  return `
+    <div class="detail-grid">
+      <div class="detail-item">
+        <span class="detail-label">新增行数</span>
+        <span class="detail-value additions">+${stats.additions}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">删除行数</span>
+        <span class="detail-value deletions">-${stats.deletions}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">总变更</span>
+        <span class="detail-value total">${stats.total}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">文件改动</span>
+        <span class="detail-value">${files.length}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">提交时间</span>
+        <span class="detail-value">${formatFullTime(commit.commit.author.date)}</span>
+      </div>
+      ${statsBarHtml(stats.additions, stats.deletions)}
+      ${fullMessage.includes('\n') ? `<div class="detail-message">${escapeHtml(fullMessage)}</div>` : ''}
+      <div class="detail-files">
+        <div class="detail-files-title">
+          <span>代码变更</span>
+          <span class="file-count">${files.length} files</span>
+        </div>
+        ${filesHtml}
+      </div>
+      ${detailLinkHtml(commit.html_url)}
+    </div>
+  `;
+}
+
+function renderFileBlock(file) {
+  const patch = file.patch || '';
+  const additions = file.additions || 0;
+  const deletions = file.deletions || 0;
+  const status = file.status || 'modified';
+  const statusLabel = { modified: 'M', added: 'A', removed: 'D', renamed: 'R' }[status] || status[0].toUpperCase();
+
+  const diffHtml = patch ? renderDiff(patch) : '<div class="diff-line context"><span class="line-num"></span><span class="line-content" style="color:#6a6d80;font-style:italic">（二进制文件或无文本差异）</span></div>';
+
+  return `
+    <div class="file-block">
+      <div class="file-header">
+        <div class="file-name">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span style="color:${additions > 0 ? 'var(--md-sys-color-tertiary)' : deletions > 0 ? 'var(--md-sys-color-error)' : '#8a8da0'};font-weight:700">${statusLabel}</span>
+          ${escapeHtml(file.filename)}
+        </div>
+        <div class="file-stats">
+          <span class="add">+${additions}</span>
+          <span class="del">-${deletions}</span>
+          <button class="file-toggle" onclick="event.stopPropagation();toggleFile(this)">展开</button>
+        </div>
+      </div>
+      <div class="file-diff">${diffHtml}</div>
+    </div>
+  `;
+}
+
+function toggleFile(btn) {
+  const block = btn.closest('.file-block');
+  const willOpen = !block.classList.contains('open');
+  block.classList.toggle('open');
+  btn.textContent = willOpen ? '收起' : '展开';
+  if (willOpen) {
+    setTimeout(() => {
+      block.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 300);
+  }
+}
+
+function renderDiff(patch) {
+  const lines = patch.split('\n');
+  let oldNum = 0, newNum = 0;
+  const html = [];
+
+  for (const line of lines) {
+    if (line.startsWith('@@')) {
+      const match = line.match(/@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
+      if (match) { oldNum = parseInt(match[1]); newNum = parseInt(match[2]); }
+      html.push(`<div class="diff-line hunk"><span class="line-num"></span><span class="line-content">${escapeHtml(line)}</span></div>`);
+      continue;
+    }
+    if (line.startsWith('+') && !line.startsWith('+++')) {
+      newNum++;
+      html.push(`<div class="diff-line add"><span class="line-num">${newNum}</span><span class="line-content">${escapeHtml(line.slice(1))}</span></div>`);
+    } else if (line.startsWith('-') && !line.startsWith('---')) {
+      oldNum++;
+      html.push(`<div class="diff-line del"><span class="line-num">${oldNum}</span><span class="line-content">${escapeHtml(line.slice(1))}</span></div>`);
+    } else if (line.startsWith('\\')) {
+      html.push(`<div class="diff-line hunk"><span class="line-num"></span><span class="line-content">${escapeHtml(line)}</span></div>`);
+    } else {
+      oldNum++; newNum++;
+      html.push(`<div class="diff-line context"><span class="line-num">${newNum}</span><span class="line-content">${escapeHtml(line.replace(/^ /, ''))}</span></div>`);
+    }
+  }
+  return html.join('');
+}
+
+// ---------- PR rendering ----------
+function getPRStateClass(pr) {
+  if (pr.merged_at) return 'state-merged';
+  if (pr.draft) return 'state-draft';
+  return pr.state === 'open' ? 'state-open' : 'state-closed';
+}
+
+function getPRStateLabel(pr) {
+  if (pr.merged_at) return '已合并';
+  if (pr.draft) return '草稿';
+  return pr.state === 'open' ? '开启' : '已关闭';
+}
+
+function getPRStateIcon(stateClass) {
+  if (stateClass === 'state-merged') {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M6 8v8M18 8v8M6 8a4 4 0 0 1 4-4h4"/></svg>';
+  }
+  if (stateClass === 'state-closed') {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M6 8v8M18 8v8M6 8a4 4 0 0 1 4-4h4"/></svg>';
+  }
+  if (stateClass === 'state-draft') {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+  }
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M6 8v8M18 8v8M6 8a4 4 0 0 1 4-4h4"/></svg>';
+}
+
+function renderPR(pr, repo, animate) {
+  const stateClass = getPRStateClass(pr);
+  const stateLabel = getPRStateLabel(pr);
+  const animClass = animate ? '' : 'no-anim';
+
+  return `
+    <div class="pr-item ${stateClass} ${animClass}" data-number="${pr.number}" data-owner="${repo.owner}" data-repo="${repo.repo}">
+      <div class="commit-item-header">
+        <span class="timeline-dot"></span>
+        <div class="commit-content">
+          <div class="commit-message">
+            <span class="state-badge ${stateClass}">${getPRStateIcon(stateClass)}${stateLabel}</span>
+            <span class="pr-num-prefix">#${pr.number}</span>
+            <span>${escapeHtml(pr.title)}</span>
+            ${expandArrowHtml()}
+          </div>
+          <div class="commit-meta">
+            ${repoTagHtml(repo)}
+            <span class="pr-branches">
+              ${escapeHtml(pr.head && pr.head.ref || '?')}
+              <span class="branch-arrow">→</span>
+              ${escapeHtml(pr.base && pr.base.ref || '?')}
+            </span>
+            ${authorHtml(pr.user)}
+            <span class="commit-time">${formatTime(pr.updated_at)}</span>
+            ${commentCountHtml(pr.comments)}
+            ${labelsHtml(pr.labels)}
+          </div>
+        </div>
+      </div>
+      <div class="commit-detail" id="pr-detail-${pr.number}"></div>
+    </div>
+  `;
+}
+
+function renderPRDetail(pr, repo) {
+  const body = pr.body || '';
+  const additions = pr.additions || 0;
+  const deletions = pr.deletions || 0;
+
+  return `
+    <div class="detail-grid">
+      <div class="detail-item">
+        <span class="detail-label">状态</span>
+        <span class="detail-value">${getPRStateLabel(pr)}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">新增行数</span>
+        <span class="detail-value additions">+${additions}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">删除行数</span>
+        <span class="detail-value deletions">-${deletions}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">改动文件</span>
+        <span class="detail-value total">${pr.changed_files || 0}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">提交数</span>
+        <span class="detail-value">${pr.commits || 0}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">创建时间</span>
+        <span class="detail-value">${formatFullTime(pr.created_at)}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">更新时间</span>
+        <span class="detail-value">${formatFullTime(pr.updated_at)}</span>
+      </div>
+      ${pr.merged_at ? `<div class="detail-item"><span class="detail-label">合并时间</span><span class="detail-value">${formatFullTime(pr.merged_at)}</span></div>` : ''}
+      ${pr.closed_at && !pr.merged_at ? `<div class="detail-item"><span class="detail-label">关闭时间</span><span class="detail-value">${formatFullTime(pr.closed_at)}</span></div>` : ''}
+      ${statsBarHtml(additions, deletions)}
+      ${body ? `<div class="pr-body">${renderBodyHtml(body)}</div>` : ''}
+      ${labelsHtml(pr.labels) ? `<div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px">${labelsHtml(pr.labels)}</div>` : ''}
+      ${detailLinkHtml(pr.html_url)}
+    </div>
+  `;
+}
+
+// ---------- Issue rendering ----------
+function renderIssue(issue, repo, animate) {
+  const stateClass = issue.state === 'open' ? 'state-open' : 'state-closed';
+  const stateLabel = issue.state === 'open' ? '开启' : '已关闭';
+  const animClass = animate ? '' : 'no-anim';
+  const stateIcon = issue.state === 'open'
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>';
+
+  return `
+    <div class="issue-item ${stateClass} ${animClass}" data-number="${issue.number}" data-owner="${repo.owner}" data-repo="${repo.repo}">
+      <div class="commit-item-header">
+        <span class="timeline-dot"></span>
+        <div class="commit-content">
+          <div class="commit-message">
+            <span class="state-badge ${stateClass}">${stateIcon}${stateLabel}</span>
+            <span class="pr-num-prefix">#${issue.number}</span>
+            <span>${escapeHtml(issue.title)}</span>
+            ${expandArrowHtml()}
+          </div>
+          <div class="commit-meta">
+            ${repoTagHtml(repo)}
+            ${authorHtml(issue.user)}
+            <span class="commit-time">${formatTime(issue.updated_at)}</span>
+            ${commentCountHtml(issue.comments)}
+            ${labelsHtml(issue.labels)}
+          </div>
+        </div>
+      </div>
+      <div class="commit-detail" id="issue-detail-${issue.number}"></div>
+    </div>
+  `;
+}
+
+function renderIssueDetail(issue, repo) {
+  const body = issue.body || '';
+  return `
+    <div class="detail-grid">
+      <div class="detail-item">
+        <span class="detail-label">状态</span>
+        <span class="detail-value">${issue.state === 'open' ? '开启' : '已关闭'}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">创建时间</span>
+        <span class="detail-value">${formatFullTime(issue.created_at)}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">更新时间</span>
+        <span class="detail-value">${formatFullTime(issue.updated_at)}</span>
+      </div>
+      ${issue.closed_at ? `<div class="detail-item"><span class="detail-label">关闭时间</span><span class="detail-value">${formatFullTime(issue.closed_at)}</span></div>` : ''}
+      <div class="detail-item">
+        <span class="detail-label">评论数</span>
+        <span class="detail-value total">${issue.comments || 0}</span>
+      </div>
+      ${body ? `<div class="issue-body">${renderBodyHtml(body)}</div>` : ''}
+      ${labelsHtml(issue.labels) ? `<div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px">${labelsHtml(issue.labels)}</div>` : ''}
+      ${detailLinkHtml(issue.html_url)}
+    </div>
+  `;
+}
+
+// ---------- Data fetching ----------
+async function fetchRepo(repoConfig, perPage) {
+  const etagKey = `commits_${repoConfig.owner}_${repoConfig.repo}_${perPage}`;
+  const url = `https://api.github.com/repos/${repoConfig.owner}/${repoConfig.repo}/commits?per_page=${perPage}`;
+  const result = await fetchWithEtag(url, etagKey);
+  if (result.notModified) {
+    const cached = loadCache(`commits_${repoConfig.key}_${perPage}`);
+    if (cached) return { data: cached.data, fromCache: true };
+    // cache miss but 304 — re-fetch without etag
+    const res2 = await fetch(url);
+    if (!res2.ok) throw new Error(`${repoConfig.repo}: ${res2.status}`);
+    const data2 = await res2.json();
+    saveCache(`commits_${repoConfig.key}_${perPage}`, data2);
+    return { data: data2, fromCache: false };
+  }
+  if (result.rateLimited) {
+    const cached = loadCache(`commits_${repoConfig.key}_${perPage}`);
+    if (cached) return { data: cached.data, fromCache: true };
+    throw new Error(`${repoConfig.repo}: API 限流`);
+  }
+  saveCache(`commits_${repoConfig.key}_${perPage}`, result.data);
+  return { data: result.data, fromCache: false };
+}
+
+async function fetchCommitDetail(owner, repo, sha) {
+  if (detailCache.has(sha)) return detailCache.get(sha);
+  const etagKey = `detail_${owner}_${repo}_${sha}`;
+  const url = `https://api.github.com/repos/${owner}/${repo}/commits/${sha}`;
+  const result = await fetchWithEtag(url, etagKey);
+  if (result.notModified) {
+    const cached = loadCache(`detail_${sha}`);
+    if (cached) { detailCache.set(sha, cached.data); return cached.data; }
+  }
+  if (result.rateLimited) {
+    const cached = loadCache(`detail_${sha}`);
+    if (cached) { detailCache.set(sha, cached.data); return cached.data; }
+    throw new Error('detail: API 限流');
+  }
+  detailCache.set(sha, result.data);
+  saveCache(`detail_${sha}`, result.data);
+  return result.data;
+}
+
+async function fetchPulls(repo, perPage, state) {
+  const etagKey = `pulls_${repo.owner}_${repo.repo}_${perPage}_${state}`;
+  const url = `https://api.github.com/repos/${repo.owner}/${repo.repo}/pulls?state=${state}&per_page=${perPage}&sort=updated&direction=desc`;
+  const result = await fetchWithEtag(url, etagKey);
+  if (result.notModified) {
+    const cached = loadCache(`pulls_${repo.key}_${perPage}_${state}`);
+    if (cached) return { data: cached.data, fromCache: true };
+  }
+  if (result.rateLimited) {
+    const cached = loadCache(`pulls_${repo.key}_${perPage}_${state}`);
+    if (cached) return { data: cached.data, fromCache: true };
+    throw new Error(`${repo.repo} pulls: API 限流`);
+  }
+  saveCache(`pulls_${repo.key}_${perPage}_${state}`, result.data);
+  return { data: result.data, fromCache: false };
+}
+
+async function fetchIssues(repo, perPage, state) {
+  const etagKey = `issues_${repo.owner}_${repo.repo}_${perPage}_${state}`;
+  const url = `https://api.github.com/repos/${repo.owner}/${repo.repo}/issues?state=${state}&per_page=${perPage}&sort=updated&direction=desc`;
+  const result = await fetchWithEtag(url, etagKey);
+  if (result.notModified) {
+    const cached = loadCache(`issues_${repo.key}_${perPage}_${state}`);
+    if (cached) return { data: cached.data, fromCache: true };
+  }
+  if (result.rateLimited) {
+    const cached = loadCache(`issues_${repo.key}_${perPage}_${state}`);
+    if (cached) return { data: cached.data, fromCache: true };
+    throw new Error(`${repo.repo} issues: API 限流`);
+  }
+  const filtered = Array.isArray(result.data) ? result.data.filter(i => !i.pull_request) : [];
+  saveCache(`issues_${repo.key}_${perPage}_${state}`, filtered);
+  return { data: filtered, fromCache: false };
+}
+
+async function fetchPRDetail(owner, repo, number) {
+  const key = `${owner}/${repo}#${number}`;
+  if (prDetailCache.has(key)) return prDetailCache.get(key);
+  const etagKey = `pr_detail_${owner}_${repo}_${number}`;
+  const url = `https://api.github.com/repos/${owner}/${repo}/pulls/${number}`;
+  const result = await fetchWithEtag(url, etagKey);
+  if (result.notModified) {
+    const cached = loadCache(`pr_detail_${key}`);
+    if (cached) { prDetailCache.set(key, cached.data); return cached.data; }
+  }
+  if (result.rateLimited) {
+    const cached = loadCache(`pr_detail_${key}`);
+    if (cached) { prDetailCache.set(key, cached.data); return cached.data; }
+    throw new Error('pr detail: API 限流');
+  }
+  prDetailCache.set(key, result.data);
+  saveCache(`pr_detail_${key}`, result.data);
+  return result.data;
+}
+
+// ---------- UI updates ----------
+function renderDetailLoading() {
+  return `<div class="detail-grid"><div class="detail-loading"><span class="mini-spinner"></span>加载详情...</div></div>`;
+}
+
+function updateUI(allCommits, animateAll) {
+  const listEl = document.getElementById('commitList');
+  commitStore = allCommits;
+
+  allCommits.sort((a, b) => new Date(b.commit.commit.author.date) - new Date(a.commit.commit.author.date));
+
+  const newShas = [];
+  const html = allCommits.map(({ commit, repo }) => {
+    const isNew = !isFirstLoad && !knownShas.has(commit.sha);
+    if (isNew) newShas.push(commit.sha);
+    const animate = animateAll || isNew;
+    return renderCommit(commit, repo, isNew, animate);
+  }).join('');
+
+  if (allCommits.length === 0) {
+    listEl.innerHTML = emptyStateHtml('暂无提交记录');
+  } else {
+    listEl.innerHTML = html;
+    if (animateAll || newShas.length > 0) {
+      animateListEnter(listEl, newShas.length > 0 ? newShas : null);
+    }
+  }
+
+  REPOS.forEach(r => {
+    const count = allCommits.filter(c => c.repo.key === r.key).length;
+    document.getElementById(r.countEl).textContent = count;
+  });
+  document.getElementById('tabCommitCount').textContent = allCommits.length;
+
+  if (newShas.length > 0) {
+    newShas.forEach(sha => knownShas.add(sha));
+  }
+
+  allCommits.forEach(({ commit }) => {
+    const firstLine = commit.commit.message.split('\n')[0];
+    if (!isChinese(firstLine)) {
+      tryTranslate(commit.commit.message, commit.sha);
+    }
+  });
+
+  return newShas.length;
+}
+
+function updatePRUI(allPRs, animateAll) {
+  const listEl = document.getElementById('prList');
+  prStore = allPRs;
+  allPRs.sort((a, b) => new Date(b.pr.updated_at) - new Date(a.pr.updated_at));
+
+  if (allPRs.length === 0) {
+    listEl.innerHTML = emptyStateHtml('暂无 Pull Request', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M6 8v8M18 8v8M6 8a4 4 0 0 1 4-4h4"/></svg>');
+  } else {
+    listEl.innerHTML = allPRs.map(({ pr, repo }) => renderPR(pr, repo, animateAll)).join('');
+    if (animateAll) animateListEnter(listEl);
+  }
+  document.getElementById('tabPRCount').textContent = allPRs.length;
+}
+
+function updateIssueUI(allIssues, animateAll) {
+  const listEl = document.getElementById('issueList');
+  issueStore = allIssues;
+  allIssues.sort((a, b) => new Date(b.issue.updated_at) - new Date(a.issue.updated_at));
+
+  if (allIssues.length === 0) {
+    listEl.innerHTML = emptyStateHtml('暂无 Issues', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>');
+  } else {
+    listEl.innerHTML = allIssues.map(({ issue, repo }) => renderIssue(issue, repo, animateAll)).join('');
+    if (animateAll) animateListEnter(listEl);
+  }
+  document.getElementById('tabIssueCount').textContent = allIssues.length;
+}
+
+// ---------- Toggle handlers ----------
+function findCommit(sha) {
+  return commitStore.find(c => c.commit.sha === sha)?.commit;
+}
+
+async function toggleCommit(item) {
+  const sha = item.dataset.sha;
+  const owner = item.dataset.owner;
+  const repo = item.dataset.repo;
+
+  if (item.classList.contains('expanded')) {
+    const detailEl = document.getElementById(`detail-${sha}`);
+    animateCollapse(detailEl, () => item.classList.remove('expanded'));
+    return;
+  }
+
+  document.querySelectorAll('.commit-item.expanded').forEach(el => {
+    const d = el.querySelector('.commit-detail');
+    animateCollapse(d, () => el.classList.remove('expanded'));
+  });
+  item.classList.add('expanded');
+
+  const detailEl = document.getElementById(`detail-${sha}`);
+  detailEl.innerHTML = renderDetailLoading();
+  animateExpand(detailEl);
+
+  try {
+    const commitObj = findCommit(sha);
+    const repoConfig = REPOS.find(r => r.owner === owner && r.repo === repo);
+    const detail = await fetchCommitDetail(owner, repo, sha);
+    detailEl.innerHTML = renderCommitDetail(detail, commitObj || { commit: { message: '', author: { date: '' } }, html_url: `https://github.com/${owner}/${repo}/commit/${sha}` }, repoConfig);
+    if (detailEl.scrollHeight > 600) {
+      setTimeout(() => detailEl.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+    }
+  } catch (e) {
+    detailEl.innerHTML = `<div class="detail-grid"><div class="detail-loading" style="color:var(--md-sys-color-error)">详情加载失败</div></div>`;
+  }
+}
+
+async function togglePR(item) {
+  const number = item.dataset.number;
+  const owner = item.dataset.owner;
+  const repo = item.dataset.repo;
+
+  if (item.classList.contains('expanded')) {
+    const detailEl = document.getElementById(`pr-detail-${number}`);
+    animateCollapse(detailEl, () => item.classList.remove('expanded'));
+    return;
+  }
+
+  document.querySelectorAll('.pr-item.expanded').forEach(el => {
+    const d = el.querySelector('.commit-detail');
+    animateCollapse(d, () => el.classList.remove('expanded'));
+  });
+  item.classList.add('expanded');
+
+  const detailEl = document.getElementById(`pr-detail-${number}`);
+  const repoConfig = REPOS.find(r => r.owner === owner && r.repo === repo);
+  const cached = prStore.find(p => p.pr.number === parseInt(number) && p.repo.owner === owner && p.repo.repo === repo);
+  detailEl.innerHTML = renderDetailLoading();
+  animateExpand(detailEl);
+
+  try {
+    const detail = await fetchPRDetail(owner, repo, number);
+    detailEl.innerHTML = renderPRDetail(detail, repoConfig);
+    if (detailEl.scrollHeight > 600) {
+      setTimeout(() => detailEl.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+    }
+  } catch (e) {
+    if (cached) {
+      detailEl.innerHTML = renderPRDetail(cached.pr, repoConfig);
+    } else {
+      detailEl.innerHTML = `<div class="detail-grid"><div class="detail-loading" style="color:var(--md-sys-color-error)">PR 详情加载失败</div></div>`;
+    }
+  }
+}
+
+async function toggleIssue(item) {
+  const number = item.dataset.number;
+  const owner = item.dataset.owner;
+  const repo = item.dataset.repo;
+
+  if (item.classList.contains('expanded')) {
+    const detailEl = document.getElementById(`issue-detail-${number}`);
+    animateCollapse(detailEl, () => item.classList.remove('expanded'));
+    return;
+  }
+
+  document.querySelectorAll('.issue-item.expanded').forEach(el => {
+    const d = el.querySelector('.commit-detail');
+    animateCollapse(d, () => el.classList.remove('expanded'));
+  });
+  item.classList.add('expanded');
+
+  const detailEl = document.getElementById(`issue-detail-${number}`);
+  const cached = issueStore.find(i => i.issue.number === parseInt(number) && i.repo.owner === owner && i.repo.repo === repo);
+  if (cached) {
+    const repoConfig = REPOS.find(r => r.owner === owner && r.repo === repo);
+    detailEl.innerHTML = renderIssueDetail(cached.issue, repoConfig);
+    animateExpand(detailEl);
+    if (detailEl.scrollHeight > 600) {
+      setTimeout(() => detailEl.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+    }
+  } else {
+    detailEl.innerHTML = `<div class="detail-grid"><div class="detail-loading" style="color:var(--md-sys-color-error)">Issue 详情不可用</div></div>`;
+    animateExpand(detailEl);
+  }
+}
+
+// ---------- View switching ----------
+function switchView(view) {
+  if (currentView === view) return;
+  currentView = view;
+  document.querySelectorAll('.view-tab').forEach(t => {
+    const isActive = t.dataset.view === view;
+    t.classList.toggle('active', isActive);
+    if (isActive) animateTabSwitch(t);
+  });
+  document.getElementById('commitListCard').style.display = view === 'commits' ? '' : 'none';
+  document.getElementById('prListCard').style.display = view === 'prs' ? '' : 'none';
+  document.getElementById('issueListCard').style.display = view === 'issues' ? '' : 'none';
+  document.getElementById('loadMoreWrap').style.display = view === 'commits' ? '' : 'none';
+
+  if (view === 'prs' && !prLoaded && !prLoading) refreshPRs();
+  if (view === 'issues' && !issueLoaded && !issueLoading) refreshIssues();
+  applyRepoFilter();
+}
+
+function filterRepo(key) {
+  if (repoFilter === key) {
+    repoFilter = 'all';
+  } else {
+    repoFilter = key;
+  }
+  document.querySelectorAll('.repo-badge').forEach(b => {
+    b.classList.toggle('active', repoFilter === 'all' || b.dataset.repo === repoFilter);
+  });
+  applyRepoFilter();
+}
+
+function applyRepoFilter() {
+  if (currentView === 'commits') {
+    const filtered = repoFilter === 'all' ? commitStore : commitStore.filter(c => c.repo.key === repoFilter);
+    const listEl = document.getElementById('commitList');
+    if (filtered.length === 0) {
+      listEl.innerHTML = emptyStateHtml('该仓库暂无提交记录');
+    } else {
+      listEl.innerHTML = filtered.map(({ commit, repo }) => renderCommit(commit, repo, false, false)).join('');
+    }
+    document.getElementById('tabCommitCount').textContent = filtered.length;
+  } else if (currentView === 'prs') {
+    const filtered = repoFilter === 'all' ? prStore : prStore.filter(p => p.repo.key === repoFilter);
+    const listEl = document.getElementById('prList');
+    if (filtered.length === 0) {
+      listEl.innerHTML = emptyStateHtml('该仓库暂无 Pull Request', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M6 8v8M18 8v8M6 8a4 4 0 0 1 4-4h4"/></svg>');
+    } else {
+      listEl.innerHTML = filtered.map(({ pr, repo }) => renderPR(pr, repo, false)).join('');
+    }
+    document.getElementById('tabPRCount').textContent = filtered.length;
+  } else if (currentView === 'issues') {
+    const filtered = repoFilter === 'all' ? issueStore : issueStore.filter(i => i.repo.key === repoFilter);
+    const listEl = document.getElementById('issueList');
+    if (filtered.length === 0) {
+      listEl.innerHTML = emptyStateHtml('该仓库暂无 Issues', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>');
+    } else {
+      listEl.innerHTML = filtered.map(({ issue, repo }) => renderIssue(issue, repo, false)).join('');
+    }
+    document.getElementById('tabIssueCount').textContent = filtered.length;
+  }
+}
+
+// ---------- Refresh routines ----------
+async function refreshAll(silent = false) {
+  const indicator = document.getElementById('refreshIndicator');
+  if (!silent) indicator.classList.add('refreshing');
+
+  try {
+    const results = await Promise.all(REPOS.map(r =>
+      fetchRepo(r, displayCount)
+        .then(res => res.data.map(c => ({ commit: c, repo: r, fromCache: res.fromCache })))
+        .catch(e => { showError(`${r.repo}: ${e.message}`); return []; })
+    ));
+
+    const allCommits = results.flat();
+    const anyFromCache = allCommits.some(c => c.fromCache);
+    allCommits.forEach(c => delete c.fromCache);
+
+    if (allCommits.length === 0) {
+      // All API calls failed — restore from cache
+      if (isFirstLoad) {
+        loadCachedCommits();
+        if (!isFirstLoad) {
+          showError('API 限流，已从缓存恢复数据');
+        } else {
+          showError('API 限流，请稍后重试');
+        }
+      } else {
+        showError('API 限流，显示缓存数据');
+      }
+      return;
+    }
+
+    const animateAll = isFirstLoad;
+    const newCount = updateUI(allCommits, animateAll);
+
+    if (isFirstLoad) {
+      allCommits.forEach(c => knownShas.add(c.commit.sha));
+      isFirstLoad = false;
+      document.getElementById('loadMoreWrap').style.display = 'block';
+    }
+
+    lastRefreshTime = Date.now();
+    if (!anyFromCache) {
+      saveCache('commits_all', allCommits);
+    }
+    updateRefreshText();
+
+    if (newCount > 0 && !isFirstLoad) {
+      const refreshText = document.getElementById('refreshText');
+      refreshText.setAttribute('data-notify', `+${newCount} 新提交`);
+      setTimeout(() => { refreshText.removeAttribute('data-notify'); updateRefreshText(); }, 5000);
+    }
+  } catch (e) {
+    showError('无法连接 GitHub API');
+    loadCachedCommits();
+  } finally {
+    indicator.classList.remove('refreshing');
+  }
+}
+
+async function refreshPRs(silent = false) {
+  if (prLoading) return;
+  prLoading = true;
+  const indicator = document.getElementById('refreshIndicator');
+  if (!silent) indicator.classList.add('refreshing');
+
+  try {
+    const results = await Promise.all(REPOS.map(r =>
+      fetchPulls(r, PR_ISSUE_PAGE_SIZE, 'all')
+        .then(res => res.data.map(pr => ({ pr, repo: r })))
+        .catch(e => { showError(`${r.repo} PR: ${e.message}`); return []; })
+    ));
+    const allPRs = results.flat();
+    if (allPRs.length === 0 && prLoaded) {
+      showError('PR API 限流，保留已加载数据');
+      return;
+    }
+    if (allPRs.length === 0) {
+      loadCachedPRs();
+      if (!prLoaded) showError('PR API 限流，请稍后重试');
+      return;
+    }
+    const animateAll = !prLoaded;
+    updatePRUI(allPRs, animateAll);
+    prLoaded = true;
+    saveCache('prs_all', allPRs);
+  } catch (e) {
+    showError('PR 加载失败');
+    loadCachedPRs();
+  } finally {
+    prLoading = false;
+    indicator.classList.remove('refreshing');
+  }
+}
+
+async function refreshIssues(silent = false) {
+  if (issueLoading) return;
+  issueLoading = true;
+  const indicator = document.getElementById('refreshIndicator');
+  if (!silent) indicator.classList.add('refreshing');
+
+  try {
+    const results = await Promise.all(REPOS.map(r =>
+      fetchIssues(r, PR_ISSUE_PAGE_SIZE, 'all')
+        .then(res => res.data.map(issue => ({ issue, repo: r })))
+        .catch(e => { showError(`${r.repo} Issues: ${e.message}`); return []; })
+    ));
+    const allIssues = results.flat();
+    if (allIssues.length === 0 && issueLoaded) {
+      showError('Issues API 限流，保留已加载数据');
+      return;
+    }
+    if (allIssues.length === 0) {
+      loadCachedIssues();
+      if (!issueLoaded) showError('Issues API 限流，请稍后重试');
+      return;
+    }
+    const animateAll = !issueLoaded;
+    updateIssueUI(allIssues, animateAll);
+    issueLoaded = true;
+    saveCache('issues_all', allIssues);
+  } catch (e) {
+    showError('Issues 加载失败');
+    loadCachedIssues();
+  } finally {
+    issueLoading = false;
+    indicator.classList.remove('refreshing');
+  }
+}
+
+function loadCachedCommits() {
+  const cached = loadCache('commits_all');
+  if (cached && cached.data && cached.data.length > 0) {
+    updateUI(cached.data, true);
+    isFirstLoad = false;
+    knownShas = new Set(cached.data.map(c => c.commit.sha));
+    document.getElementById('loadMoreWrap').style.display = 'block';
+    if (cached.ts) { lastRefreshTime = cached.ts; updateRefreshText(); }
+  }
+}
+
+function loadCachedPRs() {
+  const cached = loadCache('prs_all');
+  if (cached && cached.data && cached.data.length > 0) {
+    updatePRUI(cached.data, true);
+    prLoaded = true;
+  }
+}
+
+function loadCachedIssues() {
+  const cached = loadCache('issues_all');
+  if (cached && cached.data && cached.data.length > 0) {
+    updateIssueUI(cached.data, true);
+    issueLoaded = true;
+  }
+}
+
+function manualRefresh() {
+  const indicator = document.getElementById('refreshIndicator');
+  if (indicator.classList.contains('refreshing')) return;
+  animateRefreshPulse(indicator);
+  refreshAll();
+  if (currentView === 'prs') refreshPRs();
+  if (currentView === 'issues') refreshIssues();
+}
+
+async function loadMore() {
+  if (isLoadingMore) return;
+  isLoadingMore = true;
+  const btn = document.getElementById('loadMoreBtn');
+  btn.classList.add('loading');
+  const textEl = btn.querySelector('.load-more-text');
+  const prevText = textEl.textContent;
+
+  try {
+    displayCount += 10;
+    textEl.textContent = '加载中...';
+
+    const results = await Promise.all(REPOS.map(r =>
+      fetchRepo(r, displayCount)
+        .then(res => res.data.map(c => ({ commit: c, repo: r })))
+        .catch(e => { showError(`${r.repo}: ${e.message}`); return []; })
+    ));
+
+    const allCommits = results.flat();
+    updateUI(allCommits, false);
+    allCommits.forEach(c => knownShas.add(c.commit.sha));
+    saveCache('commits_all', allCommits);
+
+    textEl.textContent = displayCount >= 100 ? '已加载全部' : '查看更多...';
+    if (displayCount >= 100) btn.disabled = true;
+  } catch (e) {
+    showError('加载更多失败');
+    displayCount -= 10;
+    textEl.textContent = prevText;
+  } finally {
+    btn.classList.remove('loading');
+    isLoadingMore = false;
+  }
+}
+
+function showError(msg) {
+  const toast = document.getElementById('errorToast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+function updateRefreshText() {
+  const refreshText = document.getElementById('refreshText');
+  const notify = refreshText.getAttribute('data-notify');
+  if (notify) { refreshText.textContent = notify; return; }
+  if (lastRefreshTime) {
+    const ago = formatTime(new Date(lastRefreshTime).toISOString());
+    refreshText.textContent = `刷新于 ${ago}`;
+  } else {
+    refreshText.textContent = '点击刷新';
+  }
+}
+
+// ---------- Event delegation ----------
+document.getElementById('commitList').addEventListener('click', (e) => {
+  if (e.target.closest('.detail-link, .pr-link-inline, .file-toggle')) return;
+  const item = e.target.closest('.commit-item');
+  if (item) toggleCommit(item);
+});
+
+document.getElementById('prList').addEventListener('click', (e) => {
+  if (e.target.closest('.detail-link')) return;
+  const item = e.target.closest('.pr-item');
+  if (item) togglePR(item);
+});
+
+document.getElementById('issueList').addEventListener('click', (e) => {
+  if (e.target.closest('.detail-link')) return;
+  const item = e.target.closest('.issue-item');
+  if (item) toggleIssue(item);
+});
+
+// ---------- Init ----------
+loadEtags();
+
+// Try to restore from cache first (instant display, zero API calls)
+loadCachedCommits();
+
+const cachedPRs = loadCache('prs_all');
+if (cachedPRs && cachedPRs.data && cachedPRs.data.length > 0) {
+  updatePRUI(cachedPRs.data, true);
+  prLoaded = true;
+}
+
+const cachedIssues = loadCache('issues_all');
+if (cachedIssues && cachedIssues.data && cachedIssues.data.length > 0) {
+  updateIssueUI(cachedIssues.data, true);
+  issueLoaded = true;
+}
+
+// Update "刷新于 x 分钟前" label every 30s (no API calls)
+setInterval(updateRefreshText, 30000);
+updateRefreshText();
+
+// Fetch fresh data on load (silent only if cache was restored)
+refreshAll(!isFirstLoad);
+</script>
+</body>
+</html>
