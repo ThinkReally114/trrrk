@@ -1944,9 +1944,12 @@ async function fetchAnnouncements() {
     try { announcements = JSON.parse(cached); } catch (e) { announcements = []; }
   }
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
     const results = await Promise.allSettled(
-      ANNOUNCEMENT_VERSIONS.map(v => fetch(ANNOUNCEMENT_RAW_URL + v).then(r => r.ok ? r.text() : Promise.reject()))
+      ANNOUNCEMENT_VERSIONS.map(v => fetch(ANNOUNCEMENT_RAW_URL + v, { signal: controller.signal }).then(r => r.ok ? r.text() : Promise.reject()))
     );
+    clearTimeout(timeout);
     const fetched = [];
     results.forEach((r, i) => {
       if (r.status === 'fulfilled') {
@@ -1973,7 +1976,7 @@ function initAnnouncement() {
   if (!body) return;
   fetchAnnouncements().then(announcements => {
     if (announcements.length === 0) {
-      body.innerHTML = '<div class="announcement-item"><div class="announcement-content" style="color:#6a6d80">暂无公告</div></div>';
+      body.innerHTML = '<div class="announcement-item"><div class="announcement-date" style="color:#ffb4ab">⚠</div><div class="announcement-title">你的网络卡了喵</div><div class="announcement-content">如果你是中国大陆用户请使用代理喵~</div></div>';
       return;
     }
     body.innerHTML = announcements.map(a => `
