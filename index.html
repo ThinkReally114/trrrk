@@ -1977,7 +1977,7 @@ async function fetchAnnouncements() {
         }
       }
     });
-    fetched.sort((a, b) => new Date(b.date) - new Date(a.date));
+    // No need to sort — ANNOUNCEMENT_VERSIONS is already ordered newest first
     if (fetched.length > 0) {
       announcements = fetched;
       localStorage.setItem('announcements_cache', JSON.stringify(announcements));
