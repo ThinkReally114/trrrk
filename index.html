@@ -1926,7 +1926,7 @@ async function fetchAnnouncementVersions() {
     const text = await res.text();
     const lines = text.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('ANNOUNCEMENT_VERSIONS'));
     if (lines.length > 0) {
-      ANNOUNCEMENT_VERSIONS = lines;
+      ANNOUNCEMENT_VERSIONS = lines.reverse();
     }
   } catch (e) {
     // use default versions
