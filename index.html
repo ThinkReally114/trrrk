@@ -1912,51 +1912,83 @@ window.__noAnime = false;
 })();
 
 // ---------- Announcements ----------
-const ANNOUNCEMENTS = [
-  {
-    date: '2026-07-20',
-    title: '交互升级 & 背景动效增强',
-    content: '<ul>' +
-      '<li>左上角新增 GitHub 源码链接与本公告入口</li>' +
-      '<li>支持自定义追踪任意 GitHub 仓库</li>' +
-      '<li>仓库筛选改为单选模式，新增「全部」按钮</li>' +
-      '<li>背景 aurora 光斑增至 6 个，流光增至 5 条</li>' +
-      '<li>非 Chromium 浏览器自动禁用动画并提示</li>' +
-      '<li>限流时空状态显示「获取失败qwq」</li>' +
-      '</ul>'
-  },
-  {
-    date: '2026-07-19',
-    title: '动效更新',
-    content: '<ul>' +
-      '<li>新增 item 展开/收缩弹动动画</li>' +
-      '<li>全局动画时长统一调整至 300ms 档</li>' +
-      '<li>3D 卡片切换 & 详情面板立体展开</li>' +
-      '<li>iOS 风格滑动 tab 指示器</li>' +
-      '</ul>'
-  },
-  {
-    date: '2026-07-19',
-    title: 'PVPUtils Commit Tracker 上线',
-    content: '实时追踪 PVPUtils 及 pvputils-fix 的提交、PR、Issues 动态，支持仓库筛选、提交翻译、缓存加速。'
+// ---------- Announcements (fetched from repo) ----------
+const ANNOUNCEMENT_VERSIONS = ['1.2', '1.1', '1.0'];
+const ANNOUNCEMENT_RAW_URL = 'https://raw.githubusercontent.com/ThinkReally114/trrrk/main/does/';
+
+function parseAnnouncement(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+  let title = '', date = '', content = '';
+  for (const line of lines) {
+    if (line.startsWith('tltle:')) {
+      title = line.slice(6).trim();
+    } else if (line.startsWith('time:')) {
+      date = line.slice(5).trim();
+    } else if (line.startsWith('Extended description:')) {
+      content = line.slice(21).trim().replace(/\/n/g, '\n');
+    }
   }
-];
+  return { title, date, content };
+}
+
+function formatAnnouncementContent(text) {
+  const lines = text.split('\n').filter(l => l.trim());
+  if (lines.length <= 1) return text;
+  return '<ul>' + lines.map(l => `<li>${l.trim()}</li>`).join('') + '</ul>';
+}
+
+async function fetchAnnouncements() {
+  const cached = localStorage.getItem('announcements_cache');
+  let announcements = [];
+  if (cached) {
+    try { announcements = JSON.parse(cached); } catch (e) { announcements = []; }
+  }
+  try {
+    const results = await Promise.allSettled(
+      ANNOUNCEMENT_VERSIONS.map(v => fetch(ANNOUNCEMENT_RAW_URL + v).then(r => r.ok ? r.text() : Promise.reject()))
+    );
+    const fetched = [];
+    results.forEach((r, i) => {
+      if (r.status === 'fulfilled') {
+        const parsed = parseAnnouncement(r.value);
+        if (parsed.title && parsed.date) {
+          parsed.content = formatAnnouncementContent(parsed.content);
+          fetched.push(parsed);
+        }
+      }
+    });
+    fetched.sort((a, b) => new Date(b.date) - new Date(a.date));
+    if (fetched.length > 0) {
+      announcements = fetched;
+      localStorage.setItem('announcements_cache', JSON.stringify(announcements));
+    }
+  } catch (e) {
+    // use cached
+  }
+  return announcements;
+}
 
 function initAnnouncement() {
   const body = document.getElementById('announcementBody');
   if (!body) return;
-  body.innerHTML = ANNOUNCEMENTS.map(a => `
-    <div class="announcement-item">
-      <div class="announcement-date">${a.date}</div>
-      <div class="announcement-title">${a.title}</div>
-      <div class="announcement-content">${a.content}</div>
-    </div>
-  `).join('');
-  const lastRead = localStorage.getItem('announcement_last_read');
-  const latestDate = ANNOUNCEMENTS[0].date;
-  if (lastRead !== latestDate) {
-    document.getElementById('announcementDot').classList.add('show');
-  }
+  fetchAnnouncements().then(announcements => {
+    if (announcements.length === 0) {
+      body.innerHTML = '<div class="announcement-item"><div class="announcement-content" style="color:#6a6d80">暂无公告</div></div>';
+      return;
+    }
+    body.innerHTML = announcements.map(a => `
+      <div class="announcement-item">
+        <div class="announcement-date">${a.date}</div>
+        <div class="announcement-title">${a.title}</div>
+        <div class="announcement-content">${a.content}</div>
+      </div>
+    `).join('');
+    const lastRead = localStorage.getItem('announcement_last_read');
+    const latestDate = announcements[0].date;
+    if (lastRead !== latestDate && latestDate) {
+      document.getElementById('announcementDot').classList.add('show');
+    }
+  });
 }
 
 function toggleAnnouncement() {
@@ -1966,9 +1998,21 @@ function toggleAnnouncement() {
     panel.style.display = 'none';
   } else {
     panel.style.display = 'flex';
-    const latestDate = ANNOUNCEMENTS[0].date;
-    localStorage.setItem('announcement_last_read', latestDate);
-    document.getElementById('announcementDot').classList.remove('show');
+    // Read latest date from the DOM instead of ANNOUNCEMENTS
+    const firstItem = document.querySelector('.announcement-item .announcement-date');
+    if (firstItem) {
+      const latestDate = firstItem.textContent.trim();
+      localStorage.setItem('announcement_last_read', latestDate);
+      document.getElementById('announcementDot').classList.remove('show');
+    } else {
+      // Fallback: try to fetch latest date
+      fetchAnnouncements().then(announcements => {
+        if (announcements.length > 0) {
+          localStorage.setItem('announcement_last_read', announcements[0].date);
+          document.getElementById('announcementDot').classList.remove('show');
+        }
+      });
+    }
   }
 }
 
