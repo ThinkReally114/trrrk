@@ -1782,7 +1782,6 @@ body {
 <div class="top-bar">
   <a class="github-link" href="https://github.com/ThinkReally114/trrrk" target="_blank" rel="noopener" title="在 GitHub 上查看本站源码">
     <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.74-1.56-2.55-.29-5.23-1.28-5.23-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 2.9-.39c.98 0 1.97.13 2.9.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.42.36.79 1.08.79 2.18 0 1.58-.01 2.85-.01 3.24 0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
-    <span>源码</span>
   </a>
   <button class="announcement-btn" id="announcementBtn" onclick="toggleAnnouncement()" title="更新公告">
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -3359,9 +3358,7 @@ async function refreshAll(silent = false) {
     updateRefreshText();
 
     if (newCount > 0 && !isFirstLoad) {
-      const refreshText = document.getElementById('refreshText');
-      refreshText.setAttribute('data-notify', `+${newCount} 新提交`);
-      setTimeout(() => { refreshText.removeAttribute('data-notify'); updateRefreshText(); }, 5000);
+      showUpdateNotification(newCount, '提交');
     }
   } catch (e) {
     commitFetchFailed = true;
@@ -3398,10 +3395,13 @@ async function refreshPRs(silent = false) {
       return;
     }
     prFetchFailed = false;
+    const oldPRCount = prStore.length;
     const animateAll = !prLoaded;
     updatePRUI(allPRs, animateAll);
     prLoaded = true;
     saveCache('prs_all', allPRs);
+    const newPRCount = allPRs.length - oldPRCount;
+    if (newPRCount > 0 && !animateAll) showUpdateNotification(newPRCount, 'PR');
   } catch (e) {
     showError('PR 加载失败');
     loadCachedPRs();
@@ -3436,10 +3436,13 @@ async function refreshIssues(silent = false) {
       return;
     }
     issueFetchFailed = false;
+    const oldIssueCount = issueStore.length;
     const animateAll = !issueLoaded;
     updateIssueUI(allIssues, animateAll);
     issueLoaded = true;
     saveCache('issues_all', allIssues);
+    const newIssueCount = allIssues.length - oldIssueCount;
+    if (newIssueCount > 0 && !animateAll) showUpdateNotification(newIssueCount, 'Issues');
   } catch (e) {
     showError('Issues 加载失败');
     loadCachedIssues();
@@ -3526,6 +3529,23 @@ function showError(msg) {
   toast.classList.add('show');
   clearTimeout(toast._timeout);
   toast._timeout = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// ---------- Update notification ----------
+let updateTotalCount = 0;
+let updateTimer = null;
+
+function showUpdateNotification(count, type) {
+  updateTotalCount += count;
+  const refreshText = document.getElementById('refreshText');
+  refreshText.setAttribute('data-notify', `接收到 ${updateTotalCount} 条更新`);
+  if (updateTimer) clearTimeout(updateTimer);
+  updateTimer = setTimeout(() => {
+    refreshText.removeAttribute('data-notify');
+    updateRefreshText();
+    updateTotalCount = 0;
+    updateTimer = null;
+  }, 5000);
 }
 
 function updateRefreshText() {
