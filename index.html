@@ -8,6 +8,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
+<script>
+// Apply theme early to prevent flash
+(function() {
+  const saved = localStorage.getItem('theme');
+  const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+  const theme = saved || (prefersLight ? 'light' : 'dark');
+  if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+})();
+</script>
 <style>
 /* Hide all scrollbars globally while keeping scroll functionality */
 * {
@@ -43,16 +52,63 @@
   --md-sys-elevation-3: 0 4px 12px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3);
   --font-display: 'Outfit', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
+  /* Text colors */
+  --text-primary: #e0e0f0;
+  --text-secondary: #b0b3c8;
+  --text-tertiary: #7a7d94;
+  --text-quaternary: #6a6d80;
+  --text-placeholder: #5a5d6e;
+  /* Aurora intensity */
+  --aurora-opacity: 1;
+  --shadow-strength: 0.4;
+}
+
+:root[data-theme="light"] {
+  --md-sys-color-surface: #fefbff;
+  --md-sys-color-surface-container: #f3f1f8;
+  --md-sys-color-surface-container-high: #ede8f3;
+  --md-sys-color-surface-container-highest: #e7e2ed;
+  --md-sys-color-primary: #5b5691;
+  --md-sys-color-primary-container: #e3deff;
+  --md-sys-color-on-primary-container: #171550;
+  --md-sys-color-secondary: #984061;
+  --md-sys-color-secondary-container: #ffd8e4;
+  --md-sys-color-on-secondary-container: #3e001e;
+  --md-sys-color-tertiary: #006e4f;
+  --md-sys-color-tertiary-container: #8ff8cb;
+  --md-sys-color-on-tertiary-container: #002114;
+  --md-sys-color-outline: #777680;
+  --md-sys-color-outline-variant: #c8c5d0;
+  --md-sys-color-error: #ba1a1a;
+  --md-sys-color-error-container: #ffdad6;
+  --md-sys-elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+  --md-sys-elevation-2: 0 2px 6px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08);
+  --md-sys-elevation-3: 0 4px 12px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.08);
+  --text-primary: #1b1b21;
+  --text-secondary: #46464f;
+  --text-tertiary: #777680;
+  --text-quaternary: #8c8a94;
+  --text-placeholder: #a0a0a8;
+  --aurora-opacity: 0.35;
+  --shadow-strength: 0.12;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 body {
   background: var(--md-sys-color-surface);
-  color: #e0e0f0;
+  color: var(--text-primary);
   font-family: var(--font-display);
   min-height: 100vh;
   overflow-x: hidden;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Smooth theme transition for common elements */
+.timeline-card, .commit-item, .repo-badge, .view-tab, .github-link,
+.announcement-btn, .theme-toggle-btn, .announcement-panel, .modal-card,
+.refresh-indicator, .detail-panel, .file-block, .diff-line {
+  transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease;
 }
 
 /* ===== Aurora background — composable layers via CSS vars ===== */
@@ -62,6 +118,8 @@ body {
   pointer-events: none;
   z-index: 0;
   overflow: hidden;
+  opacity: var(--aurora-opacity);
+  transition: opacity 0.4s ease;
 }
 
 .aurora-blob {
@@ -261,7 +319,7 @@ body {
 }
 
 .header .subtitle {
-  color: #7a7d94;
+  color: var(--text-tertiary);
   font-size: 0.85rem;
   margin-top: 6px;
   font-weight: 300;
@@ -294,7 +352,7 @@ body {
   background: var(--md-sys-color-surface-container);
   border: 1px solid var(--md-sys-color-outline-variant);
   font-size: 0.78rem;
-  color: #b0b3c8;
+  color: var(--text-secondary);
   font-weight: 500;
   cursor: pointer;
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
@@ -365,7 +423,7 @@ body {
 
 .repo-badge.repo-add {
   border-style: dashed;
-  color: #7a7d94;
+  color: var(--text-tertiary);
   opacity: 0.8;
 }
 
@@ -401,7 +459,7 @@ body {
 .repo-badge .count {
   font-family: var(--font-mono);
   font-size: 0.72rem;
-  color: #7a7d94;
+  color: var(--text-tertiary);
   padding: 1px 6px;
   background: var(--md-sys-color-surface-container-high);
   border-radius: 0;
@@ -621,7 +679,7 @@ body {
 
 .commit-message .pr-num-prefix {
   font-family: var(--font-mono);
-  color: #7a7d94;
+  color: var(--text-tertiary);
   font-weight: 600;
 }
 
@@ -656,7 +714,7 @@ body {
   height: 18px;
   border-radius: 0;
   background: var(--md-sys-color-surface-container-highest);
-  color: #7a7d94;
+  color: var(--text-tertiary);
   transition: transform 0.3s ease, background 0.2s;
   flex-shrink: 0;
   margin-left: auto;
@@ -746,7 +804,7 @@ body {
 
 .commit-author {
   font-size: 0.75rem;
-  color: #7a7d94;
+  color: var(--text-tertiary);
   display: flex;
   align-items: center;
   gap: 5px;
@@ -792,7 +850,7 @@ body {
 
 .comment-count {
   font-size: 0.7rem;
-  color: #7a7d94;
+  color: var(--text-tertiary);
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -917,7 +975,7 @@ body {
 .file-name svg {
   width: 13px;
   height: 13px;
-  color: #6a6d80;
+  color: var(--text-quaternary);
   flex-shrink: 0;
 }
 
@@ -998,9 +1056,17 @@ body {
 .diff-line.del .line-content { color: #ffc8c0; }
 .diff-line.del .line-num { background: rgba(255, 180, 171, 0.05); }
 
-.diff-line.hunk { background: var(--md-sys-color-surface-container-high); color: #6a6d80; }
-.diff-line.hunk .line-content { color: #6a6d80; font-style: italic; }
-.diff-line.context .line-content { color: #7a7d94; }
+/* Light theme: darker diff text for readability */
+:root[data-theme="light"] .diff-line.add { background: rgba(0, 110, 79, 0.1); }
+:root[data-theme="light"] .diff-line.add .line-content { color: #006e4f; }
+:root[data-theme="light"] .diff-line.add .line-num { background: rgba(0, 110, 79, 0.06); }
+:root[data-theme="light"] .diff-line.del { background: rgba(186, 26, 26, 0.1); }
+:root[data-theme="light"] .diff-line.del .line-content { color: #ba1a1a; }
+:root[data-theme="light"] .diff-line.del .line-num { background: rgba(186, 26, 26, 0.06); }
+
+.diff-line.hunk { background: var(--md-sys-color-surface-container-high); color: var(--text-quaternary); }
+.diff-line.hunk .line-content { color: var(--text-quaternary); font-style: italic; }
+.diff-line.context .line-content { color: var(--text-tertiary); }
 
 .detail-item {
   display: flex;
@@ -1010,7 +1076,7 @@ body {
 
 .detail-label {
   font-size: 0.68rem;
-  color: #6a6d80;
+  color: var(--text-quaternary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   font-weight: 500;
@@ -1043,7 +1109,7 @@ body {
 .detail-message, .pr-body, .issue-body {
   grid-column: 1 / -1;
   font-size: 0.78rem;
-  color: #b0b3c8;
+  color: var(--text-secondary);
   line-height: 1.55;
   white-space: pre-wrap;
   word-break: break-word;
@@ -1100,7 +1166,7 @@ body {
   grid-column: 1 / -1;
   text-align: center;
   padding: 16px;
-  color: #6a6d80;
+  color: var(--text-quaternary);
   font-size: 0.8rem;
   display: flex;
   align-items: center;
@@ -1139,7 +1205,7 @@ body {
   border-radius: 0;
   background: var(--md-sys-color-surface-container);
   border: 1px solid var(--md-sys-color-outline-variant);
-  color: #b0b3c8;
+  color: var(--text-secondary);
   font-size: 0.82rem;
   font-weight: 500;
   font-family: var(--font-display);
@@ -1218,7 +1284,7 @@ body {
   border-radius: 0;
   background: var(--md-sys-color-surface-container-high);
   border: 1px solid var(--md-sys-color-outline-variant);
-  color: #b0b3c8;
+  color: var(--text-secondary);
   font-size: 0.75rem;
   font-weight: 500;
   text-decoration: none;
@@ -1241,6 +1307,47 @@ body {
 }
 
 .announcement-btn { position: relative; }
+
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 0;
+  background: var(--md-sys-color-surface-container-high);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.theme-toggle-btn:hover {
+  border-color: var(--md-sys-color-outline);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.theme-toggle-btn:active {
+  transform: translateY(0) scale(0.92);
+  transition-duration: 0.08s;
+}
+
+.theme-icon {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+}
+
+/* Dark theme (default): show sun icon (click to go light) */
+.theme-icon-sun { display: none; }
+.theme-icon-moon { display: block; }
+
+:root[data-theme="light"] .theme-icon-sun { display: block; }
+:root[data-theme="light"] .theme-icon-moon { display: none; }
+
+.theme-toggle-btn:hover .theme-icon-moon,
+.theme-toggle-btn:hover .theme-icon-sun {
+  transform: rotate(45deg);
+}
 
 .announcement-dot {
   position: absolute;
@@ -1297,7 +1404,7 @@ body {
 .announcement-close {
   background: none;
   border: none;
-  color: #b0b3c8;
+  color: var(--text-secondary);
   font-size: 1.4rem;
   line-height: 1;
   cursor: pointer;
@@ -1344,7 +1451,7 @@ body {
 .announcement-content {
   font-size: 0.78rem;
   line-height: 1.5;
-  color: #b0b3c8;
+  color: var(--text-secondary);
 }
 
 .announcement-content ul {
@@ -1407,7 +1514,7 @@ body {
 .modal-close {
   background: none;
   border: none;
-  color: #b0b3c8;
+  color: var(--text-secondary);
   font-size: 1.5rem;
   line-height: 1;
   cursor: pointer;
@@ -1425,7 +1532,7 @@ body {
   display: block;
   font-size: 0.78rem;
   font-weight: 500;
-  color: #b0b3c8;
+  color: var(--text-secondary);
   margin-bottom: 8px;
   letter-spacing: 0.3px;
 }
@@ -1446,7 +1553,7 @@ body {
 
 .modal-input-icon {
   flex-shrink: 0;
-  color: #7a7d94;
+  color: var(--text-tertiary);
   margin-left: 12px;
 }
 
@@ -1467,14 +1574,14 @@ body {
 }
 
 .modal-input::placeholder {
-  color: #5a5d6e;
+  color: var(--text-placeholder);
   font-family: var(--font-mono);
 }
 
 .modal-hint {
   margin: 10px 0 0;
   font-size: 0.72rem;
-  color: #6a6d80;
+  color: var(--text-quaternary);
   line-height: 1.5;
 }
 
@@ -1514,7 +1621,7 @@ body {
 .modal-btn-cancel {
   background: transparent;
   border: 1px solid var(--md-sys-color-outline-variant);
-  color: #b0b3c8;
+  color: var(--text-secondary);
 }
 
 .modal-btn-cancel:hover {
@@ -1549,7 +1656,7 @@ body {
   background: var(--md-sys-color-surface-container-high);
   border: 1px solid var(--md-sys-color-outline-variant);
   font-size: 0.75rem;
-  color: #b0b3c8;
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1787,6 +1894,10 @@ body {
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
     <span class="announcement-dot" id="announcementDot"></span>
   </button>
+  <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="切换深浅色">
+    <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
 </div>
 
 <div class="announcement-panel" id="announcementPanel" style="display:none">
@@ -1910,6 +2021,32 @@ window.__noAnime = false;
     if (warning) warning.style.display = 'block';
   }
 })();
+
+// ---------- Theme toggle ----------
+function toggleTheme() {
+  const root = document.documentElement;
+  const isLight = root.getAttribute('data-theme') === 'light';
+  if (isLight) {
+    root.removeAttribute('data-theme');
+    localStorage.setItem('theme', 'dark');
+  } else {
+    root.setAttribute('data-theme', 'light');
+    localStorage.setItem('theme', 'light');
+  }
+}
+
+// Listen to system theme changes (only if user hasn't set a preference)
+if (window.matchMedia) {
+  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
+    if (!localStorage.getItem('theme')) {
+      if (e.matches) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+    }
+  });
+}
 
 // ---------- Announcements (fetched from repo) ----------
 const ANNOUNCEMENT_CONFIG_URL = 'https://raw.githubusercontent.com/ThinkReally114/trrrk/main/does/Announcement_Configuration_updated/ANNOUNCEMENT_VERSIONS';
