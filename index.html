@@ -64,33 +64,57 @@
 }
 
 :root[data-theme="light"] {
-  --md-sys-color-surface: #fefbff;
-  --md-sys-color-surface-container: #f3f1f8;
-  --md-sys-color-surface-container-high: #ede8f3;
-  --md-sys-color-surface-container-highest: #e7e2ed;
-  --md-sys-color-primary: #5b5691;
-  --md-sys-color-primary-container: #e3deff;
-  --md-sys-color-on-primary-container: #171550;
-  --md-sys-color-secondary: #984061;
-  --md-sys-color-secondary-container: #ffd8e4;
+  --md-sys-color-surface: #fdf8fb;
+  --md-sys-color-surface-container: #f7eef3;
+  --md-sys-color-surface-container-high: #f1e6ee;
+  --md-sys-color-surface-container-highest: #ebdce8;
+  --md-sys-color-primary: #7b4763;
+  --md-sys-color-primary-container: #ffd8e8;
+  --md-sys-color-on-primary-container: #3a001f;
+  --md-sys-color-secondary: #c2185b;
+  --md-sys-color-secondary-container: #ffd0e0;
   --md-sys-color-on-secondary-container: #3e001e;
-  --md-sys-color-tertiary: #006e4f;
-  --md-sys-color-tertiary-container: #8ff8cb;
-  --md-sys-color-on-tertiary-container: #002114;
-  --md-sys-color-outline: #777680;
-  --md-sys-color-outline-variant: #c8c5d0;
+  --md-sys-color-tertiary: #8e3088;
+  --md-sys-color-tertiary-container: #fad7f2;
+  --md-sys-color-on-tertiary-container: #360035;
+  --md-sys-color-outline: #806873;
+  --md-sys-color-outline-variant: #d9c2cd;
   --md-sys-color-error: #ba1a1a;
   --md-sys-color-error-container: #ffdad6;
-  --md-sys-elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
-  --md-sys-elevation-2: 0 2px 6px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08);
-  --md-sys-elevation-3: 0 4px 12px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.08);
-  --text-primary: #1b1b21;
-  --text-secondary: #46464f;
-  --text-tertiary: #777680;
-  --text-quaternary: #8c8a94;
-  --text-placeholder: #a0a0a8;
-  --aurora-opacity: 0.35;
-  --shadow-strength: 0.12;
+  --md-sys-elevation-1: 0 1px 3px rgba(194, 24, 91, 0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --md-sys-elevation-2: 0 2px 6px rgba(194, 24, 91, 0.12), 0 1px 3px rgba(0,0,0,0.06);
+  --md-sys-elevation-3: 0 4px 12px rgba(194, 24, 91, 0.15), 0 2px 4px rgba(0,0,0,0.06);
+  --text-primary: #2c1820;
+  --text-secondary: #5c4452;
+  --text-tertiary: #806873;
+  --text-quaternary: #9c8490;
+  --text-placeholder: #b5a0aa;
+  --aurora-opacity: 0.42;
+  --shadow-strength: 0.1;
+}
+
+/* Light theme: pink-tinted aurora */
+:root[data-theme="light"] .aurora-blob { mix-blend-mode: multiply; opacity: 0.4; }
+:root[data-theme="light"] .aurora-blob.b1 { --blob-color: rgba(194, 24, 91, 0.35); }
+:root[data-theme="light"] .aurora-blob.b2 { --blob-color: rgba(255, 105, 180, 0.4); }
+:root[data-theme="light"] .aurora-blob.b3 { --blob-color: rgba(200, 100, 160, 0.35); }
+:root[data-theme="light"] .aurora-blob.b4 { --blob-color: rgba(180, 80, 140, 0.3); }
+:root[data-theme="light"] .aurora-blob.b5 { --blob-color: rgba(220, 120, 170, 0.35); }
+:root[data-theme="light"] .aurora-blob.b6 { --blob-color: rgba(160, 60, 120, 0.3); }
+:root[data-theme="light"] .aurora-streak {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(194, 24, 91, 0.3) 30%,
+    rgba(255, 105, 180, 0.4) 50%,
+    rgba(200, 100, 160, 0.3) 70%,
+    transparent 100%
+  );
+}
+:root[data-theme="light"] .aurora-grid {
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(194, 24, 91, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 85% 60%, rgba(255, 105, 180, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(200, 100, 160, 0.05) 0%, transparent 50%);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -1189,6 +1213,14 @@ body {
 
 @keyframes new-commit-glow {
   0% { background: rgba(194, 184, 255, 0.15); }
+  100% { background: transparent; }
+}
+
+:root[data-theme="light"] .new-commit {
+  animation: new-commit-glow-light 1.5s ease-out;
+}
+@keyframes new-commit-glow-light {
+  0% { background: rgba(194, 24, 91, 0.15); }
   100% { background: transparent; }
 }
 
