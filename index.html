@@ -9,6 +9,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
 <style>
+/* Hide all scrollbars globally while keeping scroll functionality */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 :root {
   --md-sys-color-surface: #0f1118;
   --md-sys-color-surface-container: #151720;
@@ -69,63 +80,81 @@ body {
   border-radius: 50%;
   filter: blur(60px);
   mix-blend-mode: screen;
-  opacity: 0.4;
+  opacity: 0.55;
   will-change: transform, opacity;
   animation: aurora-drift var(--blob-duration) ease-in-out var(--blob-delay) infinite;
 }
 
 .aurora-blob.b1 {
-  --blob-color: rgba(194, 184, 255, 0.55);
-  --blob-size: 45vmax;
+  --blob-color: rgba(194, 184, 255, 0.6);
+  --blob-size: 50vmax;
   --blob-x: -10%;
   --blob-y: -5%;
-  --blob-duration: 24s;
+  --blob-duration: 20s;
   --blob-delay: 0s;
 }
 
 .aurora-blob.b2 {
-  --blob-color: rgba(255, 180, 214, 0.45);
-  --blob-size: 38vmax;
+  --blob-color: rgba(255, 180, 214, 0.5);
+  --blob-size: 42vmax;
   --blob-x: 70%;
   --blob-y: 10%;
-  --blob-duration: 28s;
+  --blob-duration: 24s;
   --blob-delay: -6s;
 }
 
 .aurora-blob.b3 {
-  --blob-color: rgba(122, 240, 192, 0.4);
-  --blob-size: 42vmax;
+  --blob-color: rgba(122, 240, 192, 0.45);
+  --blob-size: 46vmax;
   --blob-x: 50%;
   --blob-y: 70%;
-  --blob-duration: 26s;
+  --blob-duration: 22s;
   --blob-delay: -12s;
 }
 
 .aurora-blob.b4 {
-  --blob-color: rgba(255, 180, 171, 0.25);
-  --blob-size: 30vmax;
+  --blob-color: rgba(255, 180, 171, 0.3);
+  --blob-size: 34vmax;
   --blob-x: 20%;
   --blob-y: 60%;
-  --blob-duration: 30s;
+  --blob-duration: 26s;
   --blob-delay: -18s;
+}
+
+.aurora-blob.b5 {
+  --blob-color: rgba(160, 200, 255, 0.35);
+  --blob-size: 38vmax;
+  --blob-x: 80%;
+  --blob-y: 75%;
+  --blob-duration: 28s;
+  --blob-delay: -3s;
+}
+
+.aurora-blob.b6 {
+  --blob-color: rgba(220, 170, 255, 0.3);
+  --blob-size: 36vmax;
+  --blob-x: 10%;
+  --blob-y: 45%;
+  --blob-duration: 25s;
+  --blob-delay: -15s;
 }
 
 @keyframes aurora-drift {
   0%, 100% {
     transform: translate(0, 0) scale(1);
-    opacity: 0.4;
-  }
-  25% {
-    transform: translate(12vw, 8vh) scale(1.15);
     opacity: 0.55;
   }
+  25% {
+    transform: translate(18vw, 12vh) scale(1.2);
+    opacity: 0.7;
+  }
   50% {
-    transform: translate(-8vw, 14vh) scale(0.9);
-    opacity: 0.35;
+    transform: translate(-12vw, 20vh) scale(0.85);
+    opacity: 0.45;
   }
   75% {
-    transform: translate(6vw, -10vh) scale(1.1);
-    opacity: 0.5;
+    transform: translate(10vw, -14vh) scale(1.15);
+    opacity: 0.6;
   }
 }
 
@@ -137,9 +166,9 @@ body {
   left: -50%;
   background: linear-gradient(90deg,
     transparent 0%,
-    rgba(194, 184, 255, 0.3) 30%,
-    rgba(255, 180, 214, 0.4) 50%,
-    rgba(122, 240, 192, 0.3) 70%,
+    rgba(194, 184, 255, 0.4) 30%,
+    rgba(255, 180, 214, 0.5) 50%,
+    rgba(122, 240, 192, 0.4) 70%,
     transparent 100%
   );
   filter: blur(1px);
@@ -147,20 +176,22 @@ body {
   animation: streak-flow 12s linear infinite;
 }
 
-.aurora-streak.s1 { top: 25%; animation-delay: 0s; animation-duration: 14s; }
-.aurora-streak.s2 { top: 55%; animation-delay: -4s; animation-duration: 18s; opacity: 0; }
-.aurora-streak.s3 { top: 75%; animation-delay: -9s; animation-duration: 16s; }
+.aurora-streak.s1 { top: 20%; animation-delay: 0s; animation-duration: 12s; }
+.aurora-streak.s2 { top: 45%; animation-delay: -4s; animation-duration: 16s; }
+.aurora-streak.s3 { top: 70%; animation-delay: -9s; animation-duration: 14s; }
+.aurora-streak.s4 { top: 35%; animation-delay: -6s; animation-duration: 18s; height: 2px; }
+.aurora-streak.s5 { top: 85%; animation-delay: -11s; animation-duration: 15s; }
 
 @keyframes streak-flow {
   0% { transform: translateX(-30%) translateY(0); opacity: 0; }
-  15% { opacity: 0.6; }
-  85% { opacity: 0.6; }
-  100% { transform: translateX(30%) translateY(-2px); opacity: 0; }
+  15% { opacity: 0.75; }
+  85% { opacity: 0.75; }
+  100% { transform: translateX(30%) translateY(-3px); opacity: 0; }
 }
 
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .aurora-blob, .aurora-streak {
+  .aurora-blob, .aurora-streak, .bg-grid, .bg-grid::after {
     animation: none;
     opacity: 0.3;
   }
@@ -170,11 +201,12 @@ body {
   position: fixed;
   inset: 0;
   background-image:
-    radial-gradient(circle at 15% 20%, rgba(194, 184, 255, 0.04) 0%, transparent 50%),
-    radial-gradient(circle at 85% 60%, rgba(255, 180, 214, 0.04) 0%, transparent 50%),
-    radial-gradient(circle at 50% 80%, rgba(122, 240, 192, 0.03) 0%, transparent 50%);
+    radial-gradient(circle at 15% 20%, rgba(194, 184, 255, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 85% 60%, rgba(255, 180, 214, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(122, 240, 192, 0.05) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
+  animation: grid-shift 40s ease-in-out infinite;
 }
 
 .bg-grid::after {
@@ -182,16 +214,28 @@ body {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
   background-size: 64px 64px;
   mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 30%, transparent 70%);
+  animation: grid-pulse 8s ease-in-out infinite;
+}
+
+@keyframes grid-shift {
+  0%, 100% { background-position: 0% 0%, 0% 0%, 0% 0%; }
+  50% { background-position: 10% 15%, -8% 10%, 5% -10%; }
+}
+
+@keyframes grid-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
 }
 
 .header {
   position: relative;
   z-index: 1;
   padding: 48px 32px 32px;
+  margin-top: 24px;
   text-align: center;
 }
 
@@ -253,25 +297,33 @@ body {
   color: #b0b3c8;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
   user-select: none;
+  position: relative;
 }
 
 .repo-badge:hover {
   border-color: var(--md-sys-color-outline);
-  transform: translateY(-1px);
+  transform: translateY(-2px) scale(1.02);
 }
 
-.repo-badge.repo-a.active {
-  background: var(--md-sys-color-primary-container);
-  border-color: var(--md-sys-color-primary);
-  color: var(--md-sys-color-on-primary-container);
+.repo-badge:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.08s;
 }
 
-.repo-badge.repo-b.active {
-  background: var(--md-sys-color-tertiary-container);
-  border-color: var(--md-sys-color-tertiary);
-  color: var(--md-sys-color-on-tertiary-container);
+.repo-badge.repo-all.active {
+  background: var(--md-sys-color-secondary-container);
+  border-color: var(--md-sys-color-secondary);
+  color: var(--md-sys-color-on-secondary-container);
+  box-shadow: 0 0 12px rgba(255, 180, 214, 0.25);
+}
+
+.repo-badge:not(.repo-all):not(.repo-add).active {
+  background: var(--repo-bg, var(--md-sys-color-surface-container));
+  border-color: var(--repo-border, var(--md-sys-color-outline));
+  box-shadow: 0 0 12px var(--repo-glow, transparent);
+  color: var(--repo-border, var(--md-sys-color-on-surface));
 }
 
 .repo-badge.active .count {
@@ -283,16 +335,67 @@ body {
   width: 8px;
   height: 8px;
   border-radius: 50%;
+  position: relative;
 }
 
-.repo-badge.repo-a .dot {
-  background: var(--md-sys-color-primary);
-  box-shadow: 0 0 6px rgba(194, 184, 255, 0.5);
+.repo-badge .dot::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  opacity: 0;
+  animation: dot-pulse 2.4s ease-out infinite;
 }
 
-.repo-badge.repo-b .dot {
-  background: var(--md-sys-color-tertiary);
-  box-shadow: 0 0 6px rgba(122, 240, 192, 0.5);
+.repo-badge.active .dot::after {
+  opacity: 0.6;
+}
+
+@keyframes dot-pulse {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  70% { transform: scale(2.2); opacity: 0; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.repo-badge.repo-all .dot {
+  background: var(--md-sys-color-secondary);
+  box-shadow: 0 0 6px rgba(255, 180, 214, 0.5);
+}
+
+.repo-badge.repo-add {
+  border-style: dashed;
+  color: #7a7d94;
+  opacity: 0.8;
+}
+
+.repo-badge.repo-add:hover {
+  opacity: 1;
+  color: var(--md-sys-color-primary);
+  border-color: var(--md-sys-color-primary);
+}
+
+.repo-badge.repo-add svg { flex-shrink: 0; }
+
+.repo-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 0;
+  background: rgba(255,255,255,0.1);
+  color: inherit;
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  margin-left: 2px;
+  transition: background 0.2s;
+}
+
+.repo-remove:hover {
+  background: var(--md-sys-color-error);
+  color: #fff;
 }
 
 .repo-badge .count {
@@ -455,14 +558,9 @@ body {
   z-index: 1;
 }
 
-.commit-item.repo-a .timeline-dot {
-  background: var(--md-sys-color-primary);
-  box-shadow: 0 0 6px rgba(194, 184, 255, 0.4);
-}
-
-.commit-item.repo-b .timeline-dot {
-  background: var(--md-sys-color-tertiary);
-  box-shadow: 0 0 6px rgba(122, 240, 192, 0.4);
+.commit-item .timeline-dot {
+  background: var(--dot-color, var(--md-sys-color-primary));
+  box-shadow: 0 0 6px var(--dot-glow, rgba(194, 184, 255, 0.4));
 }
 
 .pr-item.state-open .timeline-dot,
@@ -591,16 +689,6 @@ body {
   padding: 2px 8px;
   border-radius: 0;
   letter-spacing: 0.02em;
-}
-
-.repo-tag.repo-a {
-  background: var(--md-sys-color-primary-container);
-  color: var(--md-sys-color-on-primary-container);
-}
-
-.repo-tag.repo-b {
-  background: var(--md-sys-color-tertiary-container);
-  color: var(--md-sys-color-on-tertiary-container);
 }
 
 .state-badge {
@@ -872,15 +960,10 @@ body {
 .file-block.open .file-diff {
   max-height: 600px;
   overflow-y: auto;
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
 
-.file-diff::-webkit-scrollbar { width: 6px; height: 6px; }
-.file-diff::-webkit-scrollbar-track { background: transparent; }
-.file-diff::-webkit-scrollbar-thumb {
-  background: var(--md-sys-color-outline-variant);
-  border-radius: 0;
-}
+.file-diff::-webkit-scrollbar { display: none; }
 
 .diff-line {
   display: flex;
@@ -970,15 +1053,12 @@ body {
   font-family: var(--font-mono);
   max-height: 320px;
   overflow-y: auto;
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
 
 .detail-message::-webkit-scrollbar,
 .pr-body::-webkit-scrollbar,
-.issue-body::-webkit-scrollbar { width: 4px; }
-.detail-message::-webkit-scrollbar-thumb,
-.pr-body::-webkit-scrollbar-thumb,
-.issue-body::-webkit-scrollbar-thumb { background: var(--md-sys-color-outline-variant); border-radius: 0; }
+.issue-body::-webkit-scrollbar { display: none; }
 
 .pr-body:empty, .issue-body:empty { display: none; }
 
@@ -1120,6 +1200,345 @@ body {
   opacity: 0.3;
 }
 
+.top-bar {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.github-link, .announcement-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 0;
+  background: var(--md-sys-color-surface-container-high);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  color: #b0b3c8;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-decoration: none;
+  font-family: var(--font-mono);
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.github-link:hover, .announcement-btn:hover {
+  border-color: var(--md-sys-color-outline);
+  color: var(--md-sys-color-on-surface);
+  transform: translateY(-1px);
+}
+
+.github-link:active, .announcement-btn:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.08s;
+}
+
+.announcement-btn { position: relative; }
+
+.announcement-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--md-sys-color-error);
+  display: none;
+  animation: dot-pulse 2s ease-out infinite;
+}
+
+.announcement-dot.show { display: block; }
+
+.announcement-panel {
+  position: fixed;
+  top: 60px;
+  left: 16px;
+  z-index: 20;
+  width: 340px;
+  max-width: calc(100vw - 32px);
+  max-height: 70vh;
+  background: var(--md-sys-color-surface-container-high);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  box-shadow: var(--md-sys-elevation-3);
+  backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+  transform-origin: top left;
+  animation: panel-pop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes panel-pop {
+  from { opacity: 0; transform: scale(0.92) translateY(-8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.announcement-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.announcement-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--md-sys-color-on-surface);
+}
+
+.announcement-close {
+  background: none;
+  border: none;
+  color: #b0b3c8;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  transition: color 0.2s;
+}
+
+.announcement-close:hover { color: var(--md-sys-color-on-surface); }
+
+.announcement-body {
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 12px 16px;
+  flex: 1;
+}
+
+.announcement-body::-webkit-scrollbar { display: none; }
+
+.announcement-item {
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.announcement-item:last-child { border-bottom: none; }
+
+.announcement-item:first-child { padding-top: 4px; }
+
+.announcement-date {
+  font-size: 0.7rem;
+  color: var(--md-sys-color-primary);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.announcement-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--md-sys-color-on-surface);
+  margin-bottom: 4px;
+}
+
+.announcement-content {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: #b0b3c8;
+}
+
+.announcement-content ul {
+  margin: 4px 0 0;
+  padding-left: 16px;
+}
+
+.announcement-content li {
+  margin-bottom: 2px;
+}
+
+/* ---------- Modal ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: modal-fade-in 0.2s ease;
+}
+
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-card {
+  width: 420px;
+  max-width: calc(100vw - 32px);
+  background: var(--md-sys-color-surface-container-high);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  box-shadow: var(--md-sys-elevation-3);
+  animation: modal-pop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+
+@keyframes modal-pop {
+  from { opacity: 0; transform: scale(0.92) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--md-sys-color-on-surface);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: #b0b3c8;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  transition: color 0.2s;
+}
+
+.modal-close:hover { color: var(--md-sys-color-on-surface); }
+
+.modal-body {
+  padding: 18px 20px 8px;
+}
+
+.modal-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #b0b3c8;
+  margin-bottom: 8px;
+  letter-spacing: 0.3px;
+}
+
+.modal-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--md-sys-color-surface-container);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.modal-input-wrap:focus-within {
+  border-color: var(--md-sys-color-primary);
+  box-shadow: 0 0 0 3px rgba(194, 184, 255, 0.15);
+}
+
+.modal-input-icon {
+  flex-shrink: 0;
+  color: #7a7d94;
+  margin-left: 12px;
+}
+
+.modal-input-wrap:focus-within .modal-input-icon {
+  color: var(--md-sys-color-primary);
+}
+
+.modal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 12px 14px 12px 10px;
+  font-size: 0.88rem;
+  font-family: var(--font-mono);
+  color: var(--md-sys-color-on-surface);
+  width: 100%;
+}
+
+.modal-input::placeholder {
+  color: #5a5d6e;
+  font-family: var(--font-mono);
+}
+
+.modal-hint {
+  margin: 10px 0 0;
+  font-size: 0.72rem;
+  color: #6a6d80;
+  line-height: 1.5;
+}
+
+.modal-hint code {
+  font-family: var(--font-mono);
+  background: var(--md-sys-color-surface-container);
+  padding: 1px 6px;
+  color: var(--md-sys-color-primary);
+}
+
+.modal-error {
+  margin: 8px 0 0;
+  font-size: 0.75rem;
+  color: var(--md-sys-color-error);
+  min-height: 1em;
+  display: none;
+}
+
+.modal-error.show { display: block; }
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px 18px;
+}
+
+.modal-btn {
+  padding: 9px 18px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.modal-btn-cancel {
+  background: transparent;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  color: #b0b3c8;
+}
+
+.modal-btn-cancel:hover {
+  border-color: var(--md-sys-color-outline);
+  color: var(--md-sys-color-on-surface);
+}
+
+.modal-btn-confirm {
+  background: var(--md-sys-color-primary);
+  border: 1px solid var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary, #0f1118);
+}
+
+.modal-btn-confirm:hover {
+  background: var(--md-sys-color-on-primary-container);
+  transform: translateY(-1px);
+}
+
+.modal-btn-confirm:active,
+.modal-btn-cancel:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.08s;
+}
+
 .refresh-indicator {
   position: fixed;
   top: 16px;
@@ -1217,6 +1636,55 @@ body {
   transform: translateX(-50%) translateY(0);
 }
 
+.browser-warning {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-error);
+  border-bottom: 1px solid var(--md-sys-color-error);
+  box-shadow: var(--md-sys-elevation-2);
+}
+
+.browser-warning-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.browser-warning-inner svg {
+  flex-shrink: 0;
+}
+
+.browser-warning-inner span {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.browser-warning-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.browser-warning-close:hover {
+  opacity: 1;
+}
+
 .footer {
   position: relative;
   z-index: 1;
@@ -1301,11 +1769,56 @@ body {
   <div class="aurora-blob b2"></div>
   <div class="aurora-blob b3"></div>
   <div class="aurora-blob b4"></div>
+  <div class="aurora-blob b5"></div>
+  <div class="aurora-blob b6"></div>
   <div class="aurora-streak s1"></div>
   <div class="aurora-streak s2"></div>
   <div class="aurora-streak s3"></div>
+  <div class="aurora-streak s4"></div>
+  <div class="aurora-streak s5"></div>
 </div>
 <div class="bg-grid"></div>
+
+<div class="top-bar">
+  <a class="github-link" href="https://github.com/ThinkReally114/trrrk" target="_blank" rel="noopener" title="在 GitHub 上查看本站源码">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.74-1.56-2.55-.29-5.23-1.28-5.23-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 2.9-.39c.98 0 1.97.13 2.9.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.42.36.79 1.08.79 2.18 0 1.58-.01 2.85-.01 3.24 0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    <span>源码</span>
+  </a>
+  <button class="announcement-btn" id="announcementBtn" onclick="toggleAnnouncement()" title="更新公告">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    <span class="announcement-dot" id="announcementDot"></span>
+  </button>
+</div>
+
+<div class="announcement-panel" id="announcementPanel" style="display:none">
+  <div class="announcement-header">
+    <h3>更新公告</h3>
+    <button class="announcement-close" onclick="toggleAnnouncement()">×</button>
+  </div>
+  <div class="announcement-body" id="announcementBody"></div>
+</div>
+
+<div class="modal-overlay" id="repoModal" style="display:none" onclick="closeRepoModal(event)">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3>添加追踪仓库</h3>
+      <button class="modal-close" onclick="closeRepoModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <label class="modal-label" for="repoInput">GitHub 仓库地址</label>
+      <div class="modal-input-wrap">
+        <svg class="modal-input-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.74-1.56-2.55-.29-5.23-1.28-5.23-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 2.9-.39c.98 0 1.97.13 2.9.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.42.36.79 1.08.79 2.18 0 1.58-.01 2.85-.01 3.24 0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+        <input type="text" id="repoInput" class="modal-input" placeholder="owner/repo 或 https://github.com/owner/repo" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter'){confirmAddRepo();}else if(event.key==='Escape'){closeRepoModal();}">
+      </div>
+      <p class="modal-hint">示例：<code>torvalds/linux</code> 或 <code>https://github.com/torvalds/linux</code></p>
+      <p class="modal-error" id="repoInputError"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="closeRepoModal()">取消</button>
+      <button class="modal-btn modal-btn-confirm" onclick="confirmAddRepo()">添加</button>
+    </div>
+  </div>
+</div>
 
 <div class="refresh-indicator" id="refreshIndicator" onclick="manualRefresh()" title="点击手动刷新">
   <svg class="refresh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -1319,18 +1832,7 @@ body {
 </div>
 
 <div class="timeline-card">
-  <div class="repo-badges" id="repoBadges">
-    <div class="repo-badge repo-a active" data-repo="a" onclick="filterRepo('a')">
-      <span class="dot"></span>
-      <span>bakabaicai/PVPUtils</span>
-      <span class="count" id="countA">-</span>
-    </div>
-    <div class="repo-badge repo-b active" data-repo="b" onclick="filterRepo('b')">
-      <span class="dot"></span>
-      <span>ThinkReally114/pvputils-fix</span>
-      <span class="count" id="countB">-</span>
-    </div>
-  </div>
+  <div class="repo-badges" id="repoBadges"></div>
 
   <div class="view-tabs" id="viewTabs">
     <div class="tab-indicator" id="tabIndicator"></div>
@@ -1389,11 +1891,231 @@ body {
 
 <div class="error-toast" id="errorToast"></div>
 
+<div class="browser-warning" id="browserWarning" style="display:none">
+  <div class="browser-warning-inner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span id="browserWarningText">检测到当前浏览器非 Chromium 内核，动画效果已禁用，建议使用 Chrome / Edge 等浏览器以获得最佳体验</span>
+    <button class="browser-warning-close" onclick="document.getElementById('browserWarning').style.display='none'">×</button>
+  </div>
+</div>
+
 <script>
-const REPOS = [
-  { owner: 'bakabaicai', repo: 'PVPUtils', key: 'a', label: 'PVPUtils', countEl: 'countA' },
-  { owner: 'ThinkReally114', repo: 'pvputils-fix', key: 'b', label: 'pvputils-fix', countEl: 'countB' }
+// ---------- Browser detection ----------
+window.__noAnime = false;
+(function detectBrowser() {
+  const ua = navigator.userAgent;
+  const isChromium = /\bChrome\/\d/.test(ua);
+  if (!isChromium) {
+    window.__noAnime = true;
+    const warning = document.getElementById('browserWarning');
+    if (warning) warning.style.display = 'block';
+  }
+})();
+
+// ---------- Announcements ----------
+const ANNOUNCEMENTS = [
+  {
+    date: '2026-07-20',
+    title: '交互升级 & 背景动效增强',
+    content: '<ul>' +
+      '<li>左上角新增 GitHub 源码链接与本公告入口</li>' +
+      '<li>支持自定义追踪任意 GitHub 仓库</li>' +
+      '<li>仓库筛选改为单选模式，新增「全部」按钮</li>' +
+      '<li>背景 aurora 光斑增至 6 个，流光增至 5 条</li>' +
+      '<li>非 Chromium 浏览器自动禁用动画并提示</li>' +
+      '<li>限流时空状态显示「获取失败qwq」</li>' +
+      '</ul>'
+  },
+  {
+    date: '2026-07-19',
+    title: '动效更新',
+    content: '<ul>' +
+      '<li>新增 item 展开/收缩弹动动画</li>' +
+      '<li>全局动画时长统一调整至 300ms 档</li>' +
+      '<li>3D 卡片切换 & 详情面板立体展开</li>' +
+      '<li>iOS 风格滑动 tab 指示器</li>' +
+      '</ul>'
+  },
+  {
+    date: '2026-07-19',
+    title: 'PVPUtils Commit Tracker 上线',
+    content: '实时追踪 PVPUtils 及 pvputils-fix 的提交、PR、Issues 动态，支持仓库筛选、提交翻译、缓存加速。'
+  }
 ];
+
+function initAnnouncement() {
+  const body = document.getElementById('announcementBody');
+  if (!body) return;
+  body.innerHTML = ANNOUNCEMENTS.map(a => `
+    <div class="announcement-item">
+      <div class="announcement-date">${a.date}</div>
+      <div class="announcement-title">${a.title}</div>
+      <div class="announcement-content">${a.content}</div>
+    </div>
+  `).join('');
+  const lastRead = localStorage.getItem('announcement_last_read');
+  const latestDate = ANNOUNCEMENTS[0].date;
+  if (lastRead !== latestDate) {
+    document.getElementById('announcementDot').classList.add('show');
+  }
+}
+
+function toggleAnnouncement() {
+  const panel = document.getElementById('announcementPanel');
+  const isShown = panel.style.display !== 'none';
+  if (isShown) {
+    panel.style.display = 'none';
+  } else {
+    panel.style.display = 'flex';
+    const latestDate = ANNOUNCEMENTS[0].date;
+    localStorage.setItem('announcement_last_read', latestDate);
+    document.getElementById('announcementDot').classList.remove('show');
+  }
+}
+
+const DEFAULT_REPOS = [
+  { owner: 'bakabaicai', repo: 'PVPUtils', key: 'a', label: 'PVPUtils', builtIn: true },
+  { owner: 'ThinkReally114', repo: 'pvputils-fix', key: 'b', label: 'pvputils-fix', builtIn: true }
+];
+
+// Repo accent colors (cycled for custom repos). [bg, border, glow, dot]
+const REPO_COLORS = [
+  { bg: 'rgba(194, 184, 255, 0.16)', border: '#c2b8ff', glow: 'rgba(194, 184, 255, 0.25)', dot: '#c2b8ff' },
+  { bg: 'rgba(122, 240, 192, 0.16)', border: '#7af0c0', glow: 'rgba(122, 240, 192, 0.25)', dot: '#7af0c0' },
+  { bg: 'rgba(255, 180, 214, 0.16)', border: '#ffb4d6', glow: 'rgba(255, 180, 214, 0.25)', dot: '#ffb4d6' },
+  { bg: 'rgba(255, 180, 171, 0.16)', border: '#ffb4ab', glow: 'rgba(255, 180, 171, 0.25)', dot: '#ffb4ab' },
+  { bg: 'rgba(160, 200, 255, 0.16)', border: '#a0c8ff', glow: 'rgba(160, 200, 255, 0.25)', dot: '#a0c8ff' },
+  { bg: 'rgba(220, 170, 255, 0.16)', border: '#dcaaff', glow: 'rgba(220, 170, 255, 0.25)', dot: '#dcaaff' },
+  { bg: 'rgba(255, 220, 130, 0.16)', border: '#ffdc82', glow: 'rgba(255, 220, 130, 0.25)', dot: '#ffdc82' },
+  { bg: 'rgba(130, 240, 240, 0.16)', border: '#82f0f0', glow: 'rgba(130, 240, 240, 0.25)', dot: '#82f0f0' }
+];
+
+let REPOS = [];
+let customRepos = [];
+
+function repoColor(key) {
+  const idx = key.charCodeAt(0) - 97; // 'a' -> 0
+  return REPO_COLORS[idx % REPO_COLORS.length];
+}
+
+function loadCustomRepos() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('custom_repos') || '[]');
+    customRepos = Array.isArray(saved) ? saved : [];
+  } catch (e) { customRepos = []; }
+  rebuildRepos();
+}
+
+function saveCustomRepos() {
+  localStorage.setItem('custom_repos', JSON.stringify(customRepos.map(r => ({ owner: r.owner, repo: r.repo, label: r.label }))));
+}
+
+function rebuildRepos() {
+  REPOS = [...DEFAULT_REPOS, ...customRepos];
+  renderRepoBadges();
+}
+
+function renderRepoBadges() {
+  const container = document.getElementById('repoBadges');
+  if (!container) return;
+  let html = `<div class="repo-badge repo-all ${repoFilter === 'all' ? 'active' : ''}" data-repo="all" onclick="filterRepo('all')">
+    <span class="dot"></span><span>全部</span>
+  </div>`;
+  REPOS.forEach(r => {
+    const c = repoColor(r.key);
+    const countId = `count-${r.key}`;
+    const removeBtn = r.builtIn ? '' : `<span class="repo-remove" onclick="event.stopPropagation(); removeCustomRepo('${r.owner}/${r.repo}')" title="移除">×</span>`;
+    html += `<div class="repo-badge repo-${r.key} ${repoFilter === r.key ? 'active' : ''}" data-repo="${r.key}" onclick="filterRepo('${r.key}')" style="--repo-border:${c.border};--repo-bg:${c.bg};--repo-glow:${c.glow}">
+      <span class="dot" style="background:${c.dot};box-shadow:0 0 6px ${c.glow}"></span>
+      <span>${escapeHtml(r.label)}</span>
+      <span class="count" id="${countId}">-</span>
+      ${removeBtn}
+    </div>`;
+  });
+  html += `<div class="repo-badge repo-add" onclick="showAddRepoDialog()">
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <span>添加</span>
+  </div>`;
+  container.innerHTML = html;
+}
+
+function showAddRepoDialog() {
+  const modal = document.getElementById('repoModal');
+  const input = document.getElementById('repoInput');
+  const error = document.getElementById('repoInputError');
+  input.value = '';
+  error.classList.remove('show');
+  error.textContent = '';
+  modal.style.display = 'flex';
+  setTimeout(() => input.focus(), 50);
+}
+
+function closeRepoModal(event) {
+  if (event && event.target && event.target.id !== 'repoModal' && event.type === 'click') return;
+  document.getElementById('repoModal').style.display = 'none';
+}
+
+function confirmAddRepo() {
+  const input = document.getElementById('repoInput');
+  const error = document.getElementById('repoInputError');
+  const value = input.value.trim();
+  if (!value) {
+    error.textContent = '请输入仓库地址';
+    error.classList.add('show');
+    input.focus();
+    return;
+  }
+  const parsed = parseRepoInput(value);
+  if (!parsed) {
+    error.textContent = '格式错误，请输入 owner/repo';
+    error.classList.add('show');
+    input.focus();
+    return;
+  }
+  document.getElementById('repoModal').style.display = 'none';
+  addCustomRepo(parsed.owner, parsed.repo);
+}
+
+function parseRepoInput(input) {
+  let s = input.trim();
+  s = s.replace(/^https?:\/\/github\.com\//i, '');
+  s = s.replace(/^github\.com\//i, '');
+  s = s.replace(/\.git$/i, '');
+  s = s.replace(/\/+$/, '');
+  const m = s.match(/^([\w.-]+)\/([\w.-]+)$/);
+  if (!m) return null;
+  return { owner: m[1], repo: m[2] };
+}
+
+function addCustomRepo(owner, repo) {
+  const exists = REPOS.some(r => r.owner === owner && r.repo === repo);
+  if (exists) { showError('该仓库已在追踪列表中'); return; }
+  const usedKeys = new Set(REPOS.map(r => r.key));
+  let key = 'c';
+  while (usedKeys.has(key)) key = String.fromCharCode(key.charCodeAt(0) + 1);
+  customRepos.push({ owner, repo, key, label: repo, builtIn: false });
+  saveCustomRepos();
+  rebuildRepos();
+  showError(`已添加 ${owner}/${repo}，正在加载...`);
+  refreshAll(true);
+  if (currentView === 'prs') refreshPRs();
+  if (currentView === 'issues') refreshIssues();
+}
+
+function removeCustomRepo(fullName) {
+  const [owner, repo] = fullName.split('/');
+  customRepos = customRepos.filter(r => !(r.owner === owner && r.repo === repo));
+  if (repoFilter !== 'all' && !REPOS.find(r => r.key === repoFilter)) {
+    repoFilter = 'all';
+  }
+  saveCustomRepos();
+  rebuildRepos();
+  commitStore = commitStore.filter(c => c.repo.owner !== owner || c.repo.repo !== repo);
+  prStore = prStore.filter(p => p.repo.owner !== owner || p.repo.repo !== repo);
+  issueStore = issueStore.filter(i => i.repo.owner !== owner || i.repo.repo !== repo);
+  applyRepoFilter();
+  showError(`已移除 ${owner}/${repo}`);
+}
 
 const REFRESH_INTERVAL = 30000;
 const INITIAL_PAGE_SIZE = 10;
@@ -1421,6 +2143,9 @@ let prLoaded = false;
 let issueLoaded = false;
 let prLoading = false;
 let issueLoading = false;
+let commitFetchFailed = false;
+let prFetchFailed = false;
+let issueFetchFailed = false;
 
 // ETag + localStorage cache
 let etagStore = {};
@@ -1510,7 +2235,7 @@ function shortSha(sha) { return sha ? sha.slice(0, 7) : ''; }
 
 // ---------- Animation helpers (anime.js) ----------
 function animateListEnter(listEl, newShas) {
-  if (typeof anime === 'undefined') return;
+  if (typeof anime === 'undefined' || window.__noAnime) return;
   const items = listEl.querySelectorAll('.commit-item, .pr-item, .issue-item');
   if (items.length === 0) return;
 
@@ -1568,7 +2293,7 @@ function animateListEnter(listEl, newShas) {
 }
 
 function animateExpand(detailEl) {
-  if (typeof anime === 'undefined') return;
+  if (typeof anime === 'undefined' || window.__noAnime) return;
   detailEl.style.maxHeight = '3000px';
   anime({
     targets: detailEl,
@@ -1582,7 +2307,7 @@ function animateExpand(detailEl) {
 }
 
 function animateCollapse(detailEl, callback) {
-  if (typeof anime === 'undefined') {
+  if (typeof anime === 'undefined' || window.__noAnime) {
     detailEl.style.maxHeight = '0px';
     if (callback) callback();
     return;
@@ -1605,7 +2330,7 @@ function animateCollapse(detailEl, callback) {
 }
 
 function animateItemExpand(itemEl) {
-  if (typeof anime === 'undefined') return;
+  if (typeof anime === 'undefined' || window.__noAnime) return;
   anime({
     targets: itemEl,
     translateY: [{ value: -8, duration: 150 }, { value: 0, duration: 150 }],
@@ -1616,7 +2341,7 @@ function animateItemExpand(itemEl) {
 }
 
 function animateItemCollapse(itemEl) {
-  if (typeof anime === 'undefined') return;
+  if (typeof anime === 'undefined' || window.__noAnime) return;
   anime({
     targets: itemEl,
     translateY: [{ value: -4, duration: 150 }, { value: 0, duration: 150 }],
@@ -1627,7 +2352,7 @@ function animateItemCollapse(itemEl) {
 }
 
 function animateRefreshPulse(el) {
-  if (typeof anime === 'undefined') return;
+  if (typeof anime === 'undefined' || window.__noAnime) return;
   anime({
     targets: el,
     scale: [1, 0.92, 1],
@@ -1645,7 +2370,7 @@ function moveTabIndicator(view) {
   const tabRect = targetTab.getBoundingClientRect();
   const left = tabRect.left - tabsRect.left;
   const width = tabRect.width;
-  if (typeof anime === 'undefined') {
+  if (typeof anime === 'undefined' || window.__noAnime) {
     indicator.style.left = left + 'px';
     indicator.style.width = width + 'px';
     return;
@@ -1728,7 +2453,8 @@ function hexToRgba(hex, alpha) {
 
 // Shared snippet renderers
 function repoTagHtml(repo) {
-  return `<span class="repo-tag ${repo.key === 'a' ? 'repo-a' : 'repo-b'}">${escapeHtml(repo.label)}</span>`;
+  const c = repoColor(repo.key);
+  return `<span class="repo-tag" style="background:${c.bg};color:${c.border};border-color:${c.border}">${escapeHtml(repo.label)}</span>`;
 }
 
 function authorHtml(user) {
@@ -1841,8 +2567,9 @@ function renderCommit(commit, repoConfig, isNew, animate) {
     </a>
   ` : '';
 
+  const rc = repoColor(repoConfig.key);
   return `
-    <div class="commit-item repo-${repoConfig.key} ${isNew ? 'new-commit' : ''} ${animClass}" data-sha="${sha}" data-owner="${repoConfig.owner}" data-repo="${repoConfig.repo}">
+    <div class="commit-item repo-${repoConfig.key} ${isNew ? 'new-commit' : ''} ${animClass}" data-sha="${sha}" data-owner="${repoConfig.owner}" data-repo="${repoConfig.repo}" style="--dot-color:${rc.dot};--dot-glow:${rc.glow}">
       <div class="commit-item-header">
         <span class="timeline-dot"></span>
         <div class="commit-content">
@@ -2264,7 +2991,7 @@ function updateUI(allCommits, animateAll) {
   }).join('');
 
   if (allCommits.length === 0) {
-    listEl.innerHTML = emptyStateHtml('暂无提交记录');
+    listEl.innerHTML = emptyStateHtml(commitFetchFailed ? '获取失败qwq' : '暂无提交记录');
   } else {
     listEl.innerHTML = html;
     if (animateAll || newShas.length > 0) {
@@ -2274,7 +3001,8 @@ function updateUI(allCommits, animateAll) {
 
   REPOS.forEach(r => {
     const count = allCommits.filter(c => c.repo.key === r.key).length;
-    document.getElementById(r.countEl).textContent = count;
+    const el = document.getElementById(`count-${r.key}`);
+    if (el) el.textContent = count;
   });
   document.getElementById('tabCommitCount').textContent = allCommits.length;
 
@@ -2298,7 +3026,7 @@ function updatePRUI(allPRs, animateAll) {
   allPRs.sort((a, b) => new Date(b.pr.updated_at) - new Date(a.pr.updated_at));
 
   if (allPRs.length === 0) {
-    listEl.innerHTML = emptyStateHtml('暂无 Pull Request', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M6 8v8M18 8v8M6 8a4 4 0 0 1 4-4h4"/></svg>');
+    listEl.innerHTML = emptyStateHtml(prFetchFailed ? '获取失败qwq' : '暂无 Pull Request', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M6 8v8M18 8v8M6 8a4 4 0 0 1 4-4h4"/></svg>');
   } else {
     listEl.innerHTML = allPRs.map(({ pr, repo }) => renderPR(pr, repo, animateAll)).join('');
     if (animateAll) animateListEnter(listEl);
@@ -2312,7 +3040,7 @@ function updateIssueUI(allIssues, animateAll) {
   allIssues.sort((a, b) => new Date(b.issue.updated_at) - new Date(a.issue.updated_at));
 
   if (allIssues.length === 0) {
-    listEl.innerHTML = emptyStateHtml('暂无 Issues', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>');
+    listEl.innerHTML = emptyStateHtml(issueFetchFailed ? '获取失败qwq' : '暂无 Issues', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>');
   } else {
     listEl.innerHTML = allIssues.map(({ issue, repo }) => renderIssue(issue, repo, animateAll)).join('');
     if (animateAll) animateListEnter(listEl);
@@ -2460,11 +3188,11 @@ function switchView(view) {
   });
   moveTabIndicator(view);
 
-  if (typeof anime === 'undefined' || !fromCard || !toCard) {
+  if (typeof anime === 'undefined' || window.__noAnime || !fromCard || !toCard) {
     document.getElementById('commitListCard').style.display = view === 'commits' ? '' : 'none';
     document.getElementById('prListCard').style.display = view === 'prs' ? '' : 'none';
     document.getElementById('issueListCard').style.display = view === 'issues' ? '' : 'none';
-    document.getElementById('loadMoreWrap').style.display = view === 'commits' ? '' : 'none';
+    updateLoadMoreVisibility();
     if (view === 'prs' && !prLoaded && !prLoading) refreshPRs();
     if (view === 'issues' && !issueLoaded && !issueLoading) refreshIssues();
     applyRepoFilter();
@@ -2492,8 +3220,9 @@ function switchView(view) {
       toCard.style.display = '';
       toCard.style.opacity = '0';
       toCard.style.transform = 'translateY(40px)';
-      if (toExtra) {
-        toExtra.style.display = '';
+      updateLoadMoreVisibility();
+      const toExtraVisible = toExtra && document.getElementById('loadMoreWrap').style.display !== 'none';
+      if (toExtraVisible) {
         toExtra.style.opacity = '0';
         toExtra.style.transform = 'translateY(40px)';
       }
@@ -2503,7 +3232,7 @@ function switchView(view) {
       applyRepoFilter();
 
       const fadeInTargets = [toCard];
-      if (toExtra) fadeInTargets.push(toExtra);
+      if (toExtraVisible) fadeInTargets.push(toExtra);
 
       anime({
         targets: fadeInTargets,
@@ -2523,15 +3252,31 @@ function switchView(view) {
 }
 
 function filterRepo(key) {
-  if (repoFilter === key) {
-    repoFilter = 'all';
-  } else {
-    repoFilter = key;
-  }
+  if (repoFilter === key) return;
+  repoFilter = key;
   document.querySelectorAll('.repo-badge').forEach(b => {
-    b.classList.toggle('active', repoFilter === 'all' || b.dataset.repo === repoFilter);
+    const wasActive = b.classList.contains('active');
+    const willBeActive = b.dataset.repo === repoFilter;
+    b.classList.toggle('active', willBeActive);
+    b.style.transform = '';
+    if (willBeActive && !wasActive && typeof anime !== 'undefined' && !window.__noAnime) {
+      anime({
+        targets: b,
+        scale: [0.94, 1],
+        duration: 360,
+        easing: 'easeOutBack',
+        complete: function(anim) { b.style.transform = ''; }
+      });
+    }
   });
   applyRepoFilter();
+}
+
+function updateLoadMoreVisibility() {
+  const wrap = document.getElementById('loadMoreWrap');
+  if (!wrap) return;
+  const shouldShow = currentView === 'commits' && !commitFetchFailed && !isFirstLoad;
+  wrap.style.display = shouldShow ? 'block' : 'none';
 }
 
 function applyRepoFilter() {
@@ -2539,7 +3284,7 @@ function applyRepoFilter() {
     const filtered = repoFilter === 'all' ? commitStore : commitStore.filter(c => c.repo.key === repoFilter);
     const listEl = document.getElementById('commitList');
     if (filtered.length === 0) {
-      listEl.innerHTML = emptyStateHtml('该仓库暂无提交记录');
+      listEl.innerHTML = emptyStateHtml(commitFetchFailed ? '获取失败qwq' : '该仓库暂无提交记录');
     } else {
       listEl.innerHTML = filtered.map(({ commit, repo }) => renderCommit(commit, repo, false, false)).join('');
     }
@@ -2548,7 +3293,7 @@ function applyRepoFilter() {
     const filtered = repoFilter === 'all' ? prStore : prStore.filter(p => p.repo.key === repoFilter);
     const listEl = document.getElementById('prList');
     if (filtered.length === 0) {
-      listEl.innerHTML = emptyStateHtml('该仓库暂无 Pull Request', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M6 8v8M18 8v8M6 8a4 4 0 0 1 4-4h4"/></svg>');
+      listEl.innerHTML = emptyStateHtml(prFetchFailed ? '获取失败qwq' : '该仓库暂无 Pull Request', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M6 8v8M18 8v8M6 8a4 4 0 0 1 4-4h4"/></svg>');
     } else {
       listEl.innerHTML = filtered.map(({ pr, repo }) => renderPR(pr, repo, false)).join('');
     }
@@ -2557,7 +3302,7 @@ function applyRepoFilter() {
     const filtered = repoFilter === 'all' ? issueStore : issueStore.filter(i => i.repo.key === repoFilter);
     const listEl = document.getElementById('issueList');
     if (filtered.length === 0) {
-      listEl.innerHTML = emptyStateHtml('该仓库暂无 Issues', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>');
+      listEl.innerHTML = emptyStateHtml(issueFetchFailed ? '获取失败qwq' : '该仓库暂无 Issues', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>');
     } else {
       listEl.innerHTML = filtered.map(({ issue, repo }) => renderIssue(issue, repo, false)).join('');
     }
@@ -2582,7 +3327,7 @@ async function refreshAll(silent = false) {
     allCommits.forEach(c => delete c.fromCache);
 
     if (allCommits.length === 0) {
-      // All API calls failed — restore from cache
+      commitFetchFailed = true;
       if (isFirstLoad) {
         loadCachedCommits();
         if (!isFirstLoad) {
@@ -2593,8 +3338,10 @@ async function refreshAll(silent = false) {
       } else {
         showError('API 限流，显示缓存数据');
       }
+      updateLoadMoreVisibility();
       return;
     }
+    commitFetchFailed = false;
 
     const animateAll = isFirstLoad;
     const newCount = updateUI(allCommits, animateAll);
@@ -2602,7 +3349,7 @@ async function refreshAll(silent = false) {
     if (isFirstLoad) {
       allCommits.forEach(c => knownShas.add(c.commit.sha));
       isFirstLoad = false;
-      document.getElementById('loadMoreWrap').style.display = 'block';
+      updateLoadMoreVisibility();
     }
 
     lastRefreshTime = Date.now();
@@ -2617,8 +3364,10 @@ async function refreshAll(silent = false) {
       setTimeout(() => { refreshText.removeAttribute('data-notify'); updateRefreshText(); }, 5000);
     }
   } catch (e) {
+    commitFetchFailed = true;
     showError('无法连接 GitHub API');
     loadCachedCommits();
+    updateLoadMoreVisibility();
   } finally {
     indicator.classList.remove('refreshing');
   }
@@ -2638,14 +3387,17 @@ async function refreshPRs(silent = false) {
     ));
     const allPRs = results.flat();
     if (allPRs.length === 0 && prLoaded) {
+      prFetchFailed = true;
       showError('PR API 限流，保留已加载数据');
       return;
     }
     if (allPRs.length === 0) {
+      prFetchFailed = true;
       loadCachedPRs();
       if (!prLoaded) showError('PR API 限流，请稍后重试');
       return;
     }
+    prFetchFailed = false;
     const animateAll = !prLoaded;
     updatePRUI(allPRs, animateAll);
     prLoaded = true;
@@ -2673,14 +3425,17 @@ async function refreshIssues(silent = false) {
     ));
     const allIssues = results.flat();
     if (allIssues.length === 0 && issueLoaded) {
+      issueFetchFailed = true;
       showError('Issues API 限流，保留已加载数据');
       return;
     }
     if (allIssues.length === 0) {
+      issueFetchFailed = true;
       loadCachedIssues();
       if (!issueLoaded) showError('Issues API 限流，请稍后重试');
       return;
     }
+    issueFetchFailed = false;
     const animateAll = !issueLoaded;
     updateIssueUI(allIssues, animateAll);
     issueLoaded = true;
@@ -2700,7 +3455,7 @@ function loadCachedCommits() {
     updateUI(cached.data, true);
     isFirstLoad = false;
     knownShas = new Set(cached.data.map(c => c.commit.sha));
-    document.getElementById('loadMoreWrap').style.display = 'block';
+    updateLoadMoreVisibility();
     if (cached.ts) { lastRefreshTime = cached.ts; updateRefreshText(); }
   }
 }
@@ -2829,6 +3584,12 @@ updateRefreshText();
 // Initialize tab indicator position
 initTabIndicator();
 window.addEventListener('resize', initTabIndicator);
+
+// Initialize announcement panel
+initAnnouncement();
+
+// Initialize custom repos and render badges
+loadCustomRepos();
 
 // Fetch fresh data on load (silent only if cache was restored)
 refreshAll(!isFirstLoad);
