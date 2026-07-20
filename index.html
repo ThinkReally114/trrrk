@@ -1911,10 +1911,27 @@ window.__noAnime = false;
   }
 })();
 
-// ---------- Announcements ----------
 // ---------- Announcements (fetched from repo) ----------
-const ANNOUNCEMENT_VERSIONS = ['1.2', '1.1', '1.0'];
+const ANNOUNCEMENT_CONFIG_URL = 'https://raw.githubusercontent.com/ThinkReally114/trrrk/main/does/Announcement_Configuration_updated/ANNOUNCEMENT_VERSIONS';
 const ANNOUNCEMENT_RAW_URL = 'https://raw.githubusercontent.com/ThinkReally114/trrrk/main/does/';
+let ANNOUNCEMENT_VERSIONS = ['1.2', '1.1', '1.0'];
+
+async function fetchAnnouncementVersions() {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    const res = await fetch(ANNOUNCEMENT_CONFIG_URL, { signal: controller.signal });
+    clearTimeout(timeout);
+    if (!res.ok) return;
+    const text = await res.text();
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('ANNOUNCEMENT_VERSIONS'));
+    if (lines.length > 0) {
+      ANNOUNCEMENT_VERSIONS = lines;
+    }
+  } catch (e) {
+    // use default versions
+  }
+}
 
 function parseAnnouncement(text) {
   const lines = text.split('\n').map(l => l.trim()).filter(l => l);
@@ -1974,7 +1991,9 @@ async function fetchAnnouncements() {
 function initAnnouncement() {
   const body = document.getElementById('announcementBody');
   if (!body) return;
-  fetchAnnouncements().then(announcements => {
+  fetchAnnouncementVersions().then(() => {
+    return fetchAnnouncements();
+  }).then(announcements => {
     if (announcements.length === 0) {
       body.innerHTML = '<div class="announcement-item"><div class="announcement-date" style="color:#ffb4ab">⚠</div><div class="announcement-title">你的网络卡了喵</div><div class="announcement-content">如果你是中国大陆用户请使用代理喵~</div></div>';
       return;
